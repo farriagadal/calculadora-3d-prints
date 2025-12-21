@@ -1,0 +1,1321 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calculadora de costo de impresión 3D en Chile (CLP) | Material + Luz</title>
+    <meta
+      name="description"
+      content="Calcula el costo de impresión 3D en Chile (CLP): material (CLP/kg + gramos + merma) + electricidad (CLP/kWh + hh:mm + potencia). Guarda perfiles de impresora en tu navegador."
+    />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta name="author" content="Calculadora 3D Prints" />
+    <meta name="theme-color" content="#0b1020" />
+    <link rel="canonical" href="https://calculadora-3d-prints.vercel.app/" />
+
+    <!-- Icons / PWA -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_CL" />
+    <meta property="og:site_name" content="Calculadora de costo impresión 3D" />
+    <meta property="og:title" content="Calculadora de costo de impresión 3D (CLP) — Material + Luz" />
+    <meta
+      property="og:description"
+      content="Cotiza impresiones 3D en CLP con material + electricidad (kWh) y un costo fijo opcional. Incluye perfiles de impresora y tiempo en hh:mm."
+    />
+    <meta property="og:url" content="https://calculadora-3d-prints.vercel.app/" />
+    <meta property="og:image" content="https://calculadora-3d-prints.vercel.app/og-image.svg" />
+    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Calculadora de costo de impresión 3D (CLP)" />
+    <meta
+      name="twitter:description"
+      content="Calcula material + electricidad (kWh) para cotizar impresiones 3D en Chile (CLP)."
+    />
+    <meta name="twitter:image" content="https://calculadora-3d-prints.vercel.app/og-image.svg" />
+
+    <!-- Datos estructurados -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Calculadora de costo de impresión 3D (CLP)",
+        "url": "https://calculadora-3d-prints.vercel.app/",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "es-CL",
+        "isAccessibleForFree": true,
+        "description": "Calculadora web para estimar el costo de impresión 3D en Chile (CLP): material (CLP/kg, gramos, merma) + electricidad (CLP/kWh, hh:mm, potencia)."
+      }
+    </script>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: rgba(255, 255, 255, 0.06);
+        --panel-2: rgba(255, 255, 255, 0.085);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.68);
+        --faint: rgba(255, 255, 255, 0.42);
+        --border: rgba(255, 255, 255, 0.14);
+        --shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+        --accent: #7c5cff;
+        --accent-2: #23c55e;
+        --danger: #ff4d5f;
+        --warn: #ffb020;
+        --radius: 16px;
+        --radius-sm: 12px;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+          "Segoe UI Emoji";
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        color: var(--text);
+        background: radial-gradient(1200px 900px at 10% 10%, rgba(124, 92, 255, 0.28), transparent 55%),
+          radial-gradient(900px 700px at 90% 0%, rgba(35, 197, 94, 0.22), transparent 60%),
+          radial-gradient(900px 800px at 80% 90%, rgba(255, 176, 32, 0.16), transparent 55%), var(--bg);
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 18px 50px;
+      }
+
+      header {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      .titleRow {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      h1 {
+        font-size: 1.35rem;
+        line-height: 1.25;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .pill {
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 999px;
+        padding: 8px 12px;
+        color: var(--muted);
+        font-size: 0.88rem;
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        user-select: none;
+      }
+
+      .pill code {
+        font-family: var(--mono);
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 14px;
+        align-items: start;
+      }
+
+      @media (max-width: 980px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .panel {
+        border: 1px solid var(--border);
+        background: var(--panel);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .panelHeader {
+        padding: 16px 16px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .panelHeader h2 {
+        margin: 0;
+        font-size: 1rem;
+        letter-spacing: 0.2px;
+      }
+
+      .panelBody {
+        padding: 16px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .sectionTitle {
+        font-size: 0.92rem;
+        color: rgba(255, 255, 255, 0.86);
+        margin: 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .sectionTitle small {
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .formGrid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 12px;
+      }
+
+      .field {
+        grid-column: span 6;
+        display: grid;
+        gap: 6px;
+      }
+
+      @media (max-width: 720px) {
+        .field {
+          grid-column: span 12;
+        }
+      }
+
+      .labelRow {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 10px;
+      }
+
+      label {
+        font-size: 0.86rem;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      .hint {
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      input,
+      select {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(10, 14, 30, 0.55);
+        color: var(--text);
+        padding: 10px 12px;
+        outline: none;
+        transition: border 120ms ease, background 120ms ease;
+      }
+
+      input::placeholder {
+        color: rgba(255, 255, 255, 0.35);
+      }
+
+      input:focus,
+      select:focus {
+        border-color: rgba(124, 92, 255, 0.65);
+        background: rgba(10, 14, 30, 0.75);
+      }
+
+      .errorText {
+        color: rgba(255, 143, 156, 0.92);
+        font-size: 0.8rem;
+        min-height: 1.1em;
+      }
+
+      .rowActions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .btn {
+        appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.92);
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-weight: 650;
+        letter-spacing: 0.15px;
+        cursor: pointer;
+        transition: transform 80ms ease, background 120ms ease, border 120ms ease;
+      }
+
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .btnPrimary {
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.95), rgba(124, 92, 255, 0.65));
+        border-color: rgba(124, 92, 255, 0.55);
+      }
+
+      .btnPrimary:hover {
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.98), rgba(124, 92, 255, 0.7));
+      }
+
+      .btnGhost {
+        background: transparent;
+      }
+
+      .btnDanger {
+        background: rgba(255, 77, 95, 0.16);
+        border-color: rgba(255, 77, 95, 0.4);
+      }
+
+      .btnDanger:hover {
+        background: rgba(255, 77, 95, 0.22);
+      }
+
+      .btnSmall {
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-size: 0.86rem;
+      }
+
+      .resultsTop {
+        display: grid;
+        gap: 10px;
+      }
+
+      .totalCard {
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: var(--panel-2);
+        border-radius: var(--radius);
+        padding: 16px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .totalRow {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+      }
+
+      .totalLabel {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .totalValue {
+        font-size: 1.65rem;
+        letter-spacing: 0.2px;
+        font-weight: 800;
+      }
+
+      .breakdown {
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius);
+        padding: 14px 14px 10px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .itemRow {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: baseline;
+      }
+
+      .itemRow span:first-child {
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.9rem;
+      }
+
+      .itemRow span:last-child {
+        font-family: var(--mono);
+        color: rgba(255, 255, 255, 0.92);
+      }
+
+      .divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.09);
+        margin: 6px 0;
+      }
+
+      .note {
+        color: var(--muted);
+        font-size: 0.86rem;
+        line-height: 1.35;
+      }
+
+      .modelsTable {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+
+      .modelsTable th,
+      .modelsTable td {
+        text-align: left;
+        padding: 10px 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 0.9rem;
+      }
+
+      .modelsTable th {
+        color: rgba(255, 255, 255, 0.78);
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .modelsTable td {
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .tagDefault {
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        padding: 2px 6px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      footer {
+        margin-top: 16px;
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 0.85rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="titleRow">
+          <h1>Calculadora de costo de impresión 3D</h1>
+          <div class="pill" title="Chile: la electricidad normalmente se cobra en CLP por kWh">
+            Unidad luz: <code>CLP/kWh</code> · Tiempo: <code>hh:mm</code>
+          </div>
+        </div>
+        <p class="subtitle">
+          Estima costo por <b>material</b> + <b>electricidad</b> (y un costo fijo opcional). Perfiles de impresora guardados
+          en tu navegador.
+        </p>
+      </header>
+
+      <main class="grid">
+        <section class="panel" aria-label="Entradas">
+          <div class="panelHeader">
+            <h2>Entradas</h2>
+            <div class="rowActions">
+              <button class="btn btnGhost btnSmall" id="btnResetValues" type="button">Resetear valores</button>
+              <button class="btn btnPrimary btnSmall" id="btnCalcular" type="button">Calcular</button>
+            </div>
+          </div>
+
+          <div class="panelBody">
+            <div class="sectionTitle">
+              <span>Material</span>
+              <small>CLP/kg · gramos · merma</small>
+            </div>
+
+            <div class="formGrid">
+              <div class="field" style="grid-column: span 6">
+                <div class="labelRow">
+                  <label for="precioMaterial">Precio material (CLP/kg)</label>
+                  <span class="hint">Ej: 16990</span>
+                </div>
+                <input id="precioMaterial" type="number" inputmode="numeric" min="0" step="1" placeholder="CLP por kg" />
+                <div class="errorText" id="errPrecioMaterial"></div>
+              </div>
+
+              <div class="field" style="grid-column: span 6">
+                <div class="labelRow">
+                  <label for="materialGramos">Material usado (g)</label>
+                  <span class="hint">Ej: 120</span>
+                </div>
+                <input id="materialGramos" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Gramos" />
+                <div class="errorText" id="errMaterialGramos"></div>
+              </div>
+
+              <div class="field" style="grid-column: span 6">
+                <div class="labelRow">
+                  <label for="mermaPct">Merma / desperdicio (%)</label>
+                  <span class="hint">Sugerido: 10%</span>
+                </div>
+                <input id="mermaPct" type="number" inputmode="decimal" min="0" step="0.1" placeholder="%" />
+                <div class="errorText" id="errMermaPct"></div>
+              </div>
+
+              <div class="field" style="grid-column: span 6">
+                <div class="labelRow">
+                  <label for="costoFijo">Costo fijo (CLP) (opcional)</label>
+                  <span class="hint">IPA, cinta, pegamento…</span>
+                </div>
+                <input id="costoFijo" type="number" inputmode="numeric" min="0" step="1" placeholder="0" />
+                <div class="errorText" id="errCostoFijo"></div>
+              </div>
+            </div>
+
+            <div class="sectionTitle">
+              <span>Electricidad</span>
+              <small>CLP/kWh · hh:mm · potencia</small>
+            </div>
+
+            <div class="formGrid">
+              <div class="field" style="grid-column: span 6">
+                <div class="labelRow">
+                  <label for="precioLuz">Precio luz (CLP/kWh)</label>
+                  <span class="hint">Revísalo en tu boleta</span>
+                </div>
+                <input id="precioLuz" type="number" inputmode="decimal" min="0" step="0.1" placeholder="CLP/kWh" />
+                <div class="errorText" id="errPrecioLuz"></div>
+              </div>
+
+              <div class="field" style="grid-column: span 6">
+                <div class="labelRow">
+                  <label for="tiempo">Tiempo de impresión (hh:mm)</label>
+                  <span class="hint">Ej: 05:30</span>
+                </div>
+                <input id="tiempo" type="text" inputmode="numeric" placeholder="hh:mm" autocomplete="off" />
+                <div class="errorText" id="errTiempo"></div>
+              </div>
+
+              <div class="field" style="grid-column: span 6">
+                <div class="labelRow">
+                  <label for="impresora">Impresora (modelo)</label>
+                  <span class="hint">perfil guardado</span>
+                </div>
+                <select id="impresora"></select>
+                <div class="errorText" id="errImpresora"></div>
+              </div>
+
+              <div class="field" style="grid-column: span 3">
+                <div class="labelRow">
+                  <label for="potenciaW">Potencia promedio (W)</label>
+                  <span class="hint">editable</span>
+                </div>
+                <input id="potenciaW" type="number" inputmode="decimal" min="0" step="1" placeholder="W" />
+                <div class="errorText" id="errPotenciaW"></div>
+              </div>
+
+              <div class="field" style="grid-column: span 3">
+                <div class="labelRow">
+                  <label for="consumoExtraW">Consumo extra (W)</label>
+                  <span class="hint">secador, etc.</span>
+                </div>
+                <input id="consumoExtraW" type="number" inputmode="decimal" min="0" step="1" placeholder="0" />
+                <div class="errorText" id="errConsumoExtraW"></div>
+              </div>
+            </div>
+
+            <p class="note" id="notaPotencia">
+              Nota: la <b>fuente</b> de la impresora puede ser, por ejemplo, de 400W, pero el <b>consumo promedio real</b>
+              suele ser menor y depende del perfil (temperaturas, velocidad, cama, ventiladores). Si tienes un medidor (enchufe
+              inteligente / wattímetro), ajusta este valor.
+            </p>
+
+            <div class="sectionTitle">
+              <span>Formato de salida</span>
+              <small>CLP</small>
+            </div>
+
+            <div class="formGrid">
+              <div class="field" style="grid-column: span 6">
+                <div class="labelRow">
+                  <label for="decimales">Decimales en CLP</label>
+                  <span class="hint">recomendado: 0</span>
+                </div>
+                <select id="decimales">
+                  <option value="0" selected>0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                </select>
+                <div class="errorText" id="errDecimales"></div>
+              </div>
+
+              <div class="field" style="grid-column: span 6">
+                <div class="labelRow">
+                  <label>Acciones</label>
+                  <span class="hint">WhatsApp / IG</span>
+                </div>
+                <div class="rowActions" style="justify-content: flex-start">
+                  <button class="btn btnSmall" id="btnCopiar" type="button">Copiar desglose</button>
+                  <button class="btn btnSmall btnGhost" id="btnLimpiarErrores" type="button">Limpiar errores</button>
+                </div>
+                <div class="errorText" id="errCopiar"></div>
+              </div>
+            </div>
+
+            <div class="sectionTitle">
+              <span>Perfiles de impresora</span>
+              <small>localStorage</small>
+            </div>
+
+            <div class="formGrid">
+              <div class="field" style="grid-column: span 8">
+                <div class="labelRow">
+                  <label for="modeloNombre">Nombre del modelo</label>
+                  <span class="hint">Ej: Ender 3 V2</span>
+                </div>
+                <input id="modeloNombre" type="text" placeholder="Nombre" />
+                <div class="errorText" id="errModeloNombre"></div>
+              </div>
+
+              <div class="field" style="grid-column: span 4">
+                <div class="labelRow">
+                  <label for="modeloPotenciaW">Potencia promedio (W)</label>
+                  <span class="hint">Ej: 180</span>
+                </div>
+                <input id="modeloPotenciaW" type="number" inputmode="decimal" min="0" step="1" placeholder="W" />
+                <div class="errorText" id="errModeloPotenciaW"></div>
+              </div>
+
+              <div class="field" style="grid-column: span 12">
+                <div class="rowActions" style="justify-content: flex-start">
+                  <button class="btn btnSmall btnPrimary" id="btnGuardarModelo" type="button">Guardar modelo</button>
+                  <button class="btn btnSmall btnGhost" id="btnCancelarEdicion" type="button" style="display: none">
+                    Cancelar edición
+                  </button>
+                  <button class="btn btnSmall btnDanger" id="btnResetModelos" type="button">Restaurar modelos</button>
+                </div>
+                <div class="note">
+                  Puedes agregar modelos y editarlos. El modelo <span class="tagDefault">por defecto</span> no se elimina, pero
+                  puedes duplicarlo creando uno nuevo.
+                </div>
+              </div>
+
+              <div class="field" style="grid-column: span 12">
+                <table class="modelsTable" aria-label="Modelos guardados">
+                  <thead>
+                    <tr>
+                      <th>Modelo</th>
+                      <th>Potencia (W)</th>
+                      <th style="width: 220px">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaModelos"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel" aria-label="Resultados">
+          <div class="panelHeader">
+            <h2>Resultados</h2>
+            <div class="pill" id="estadoCalc">Listo</div>
+          </div>
+
+          <div class="panelBody">
+            <div class="resultsTop">
+              <div class="totalCard">
+                <div class="totalRow">
+                  <div>
+                    <div class="totalLabel">Total estimado</div>
+                    <div class="hint" id="totalSub">Completa los campos para calcular</div>
+                  </div>
+                  <div class="totalValue" id="totalCLP">$0</div>
+                </div>
+              </div>
+
+              <div class="breakdown">
+                <div class="itemRow">
+                  <span>Material</span>
+                  <span id="costoMaterialCLP">$0</span>
+                </div>
+                <div class="itemRow">
+                  <span>Electricidad</span>
+                  <span id="costoLuzCLP">$0</span>
+                </div>
+                <div class="itemRow">
+                  <span>Costo fijo</span>
+                  <span id="costoFijoCLP">$0</span>
+                </div>
+                <div class="divider"></div>
+                <div class="itemRow">
+                  <span>kWh estimados</span>
+                  <span id="kwh">0.000</span>
+                </div>
+                <div class="itemRow">
+                  <span>Material con merma</span>
+                  <span id="gramosConMerma">0.0 g</span>
+                </div>
+                <div class="itemRow">
+                  <span>Potencia total</span>
+                  <span id="potenciaTotal">0 W</span>
+                </div>
+                <div class="itemRow">
+                  <span>Tiempo</span>
+                  <span id="tiempoFmt">00:00</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="note" id="notaSalida">
+              Este cálculo es una <b>estimación</b>. Si quieres afinar la electricidad, mide el consumo promedio real de tu
+              impresora (W) durante una impresión típica.
+            </div>
+          </div>
+        </aside>
+      </main>
+
+      <footer>Hecho para cotizar rápido: material + luz (Chile) · modelos guardados localmente</footer>
+    </div>
+
+    <script>
+      (function () {
+        const STORAGE_KEY = "calc3dprints:printerModels:v1";
+        const DEFAULT_MODELS = [
+          {
+            id: "builtin-kobra2pro",
+            nombre: "Anycubic Kobra 2 Pro",
+            potenciaW: 200,
+            builtin: true,
+          },
+        ];
+
+        const $ = (id) => document.getElementById(id);
+
+        const els = {
+          precioMaterial: $("precioMaterial"),
+          materialGramos: $("materialGramos"),
+          mermaPct: $("mermaPct"),
+          costoFijo: $("costoFijo"),
+          precioLuz: $("precioLuz"),
+          tiempo: $("tiempo"),
+          impresora: $("impresora"),
+          potenciaW: $("potenciaW"),
+          consumoExtraW: $("consumoExtraW"),
+          decimales: $("decimales"),
+
+          totalCLP: $("totalCLP"),
+          totalSub: $("totalSub"),
+          costoMaterialCLP: $("costoMaterialCLP"),
+          costoLuzCLP: $("costoLuzCLP"),
+          costoFijoCLP: $("costoFijoCLP"),
+          kwh: $("kwh"),
+          gramosConMerma: $("gramosConMerma"),
+          potenciaTotal: $("potenciaTotal"),
+          tiempoFmt: $("tiempoFmt"),
+          estadoCalc: $("estadoCalc"),
+
+          btnCalcular: $("btnCalcular"),
+          btnCopiar: $("btnCopiar"),
+          btnResetValues: $("btnResetValues"),
+          btnLimpiarErrores: $("btnLimpiarErrores"),
+
+          modeloNombre: $("modeloNombre"),
+          modeloPotenciaW: $("modeloPotenciaW"),
+          btnGuardarModelo: $("btnGuardarModelo"),
+          btnCancelarEdicion: $("btnCancelarEdicion"),
+          btnResetModelos: $("btnResetModelos"),
+          tablaModelos: $("tablaModelos"),
+
+          err: {
+            precioMaterial: $("errPrecioMaterial"),
+            materialGramos: $("errMaterialGramos"),
+            mermaPct: $("errMermaPct"),
+            costoFijo: $("errCostoFijo"),
+            precioLuz: $("errPrecioLuz"),
+            tiempo: $("errTiempo"),
+            impresora: $("errImpresora"),
+            potenciaW: $("errPotenciaW"),
+            consumoExtraW: $("errConsumoExtraW"),
+            decimales: $("errDecimales"),
+            copiar: $("errCopiar"),
+            modeloNombre: $("errModeloNombre"),
+            modeloPotenciaW: $("errModeloPotenciaW"),
+          },
+        };
+
+        /** Estado */
+        let models = loadModels();
+        let editingModelId = null; // si no es null, el formulario está en modo edición
+
+        /** Utils */
+        function clampMin0(n) {
+          if (!Number.isFinite(n)) return NaN;
+          return n < 0 ? NaN : n;
+        }
+
+        function parseNumber(el) {
+          const raw = String(el.value ?? "").trim();
+          if (raw === "") return NaN;
+          const n = Number(raw);
+          return clampMin0(n);
+        }
+
+        function parseTimeHHMM(value) {
+          const raw = String(value ?? "").trim();
+          const m = raw.match(/^(\d+):([0-5]\d)$/);
+          if (!m) return null;
+          const hh = Number(m[1]);
+          const mm = Number(m[2]);
+          if (!Number.isFinite(hh) || !Number.isFinite(mm)) return null;
+          return { hh, mm, hours: hh + mm / 60, raw: `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}` };
+        }
+
+        function formatCLP(value, decimals) {
+          const d = Number(decimals);
+          const fmt = new Intl.NumberFormat("es-CL", {
+            style: "currency",
+            currency: "CLP",
+            maximumFractionDigits: d,
+            minimumFractionDigits: d,
+          });
+          return fmt.format(Number.isFinite(value) ? value : 0);
+        }
+
+        function setError(key, msg) {
+          els.err[key].textContent = msg || "";
+        }
+
+        function clearAllErrors() {
+          for (const k of Object.keys(els.err)) setError(k, "");
+        }
+
+        function setEstado(text, kind) {
+          els.estadoCalc.textContent = text;
+          const base = "pill";
+          if (kind === "ok") {
+            els.estadoCalc.style.borderColor = "rgba(35, 197, 94, 0.45)";
+            els.estadoCalc.style.background = "rgba(35, 197, 94, 0.12)";
+          } else if (kind === "bad") {
+            els.estadoCalc.style.borderColor = "rgba(255, 77, 95, 0.45)";
+            els.estadoCalc.style.background = "rgba(255, 77, 95, 0.12)";
+          } else if (kind === "warn") {
+            els.estadoCalc.style.borderColor = "rgba(255, 176, 32, 0.5)";
+            els.estadoCalc.style.background = "rgba(255, 176, 32, 0.12)";
+          } else {
+            els.estadoCalc.style.borderColor = "rgba(255,255,255,0.16)";
+            els.estadoCalc.style.background = "rgba(255,255,255,0.06)";
+          }
+          els.estadoCalc.className = base;
+        }
+
+        /** Modelos */
+        function loadModels() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return [...DEFAULT_MODELS];
+            const parsed = JSON.parse(raw);
+            if (!Array.isArray(parsed)) return [...DEFAULT_MODELS];
+            const sanitized = parsed
+              .filter((m) => m && typeof m === "object")
+              .map((m) => ({
+                id: String(m.id || ""),
+                nombre: String(m.nombre || "").trim(),
+                potenciaW: Number(m.potenciaW),
+                builtin: Boolean(m.builtin),
+              }))
+              .filter((m) => m.id && m.nombre && Number.isFinite(m.potenciaW) && m.potenciaW >= 0);
+
+            // Asegura que el builtin exista (si lo borraron manualmente)
+            const hasKobra = sanitized.some((m) => m.id === "builtin-kobra2pro");
+            if (!hasKobra) sanitized.unshift(DEFAULT_MODELS[0]);
+
+            return sanitized;
+          } catch {
+            return [...DEFAULT_MODELS];
+          }
+        }
+
+        function saveModels(nextModels) {
+          models = nextModels;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(models));
+        }
+
+        function upsertModel(model) {
+          const idx = models.findIndex((m) => m.id === model.id);
+          if (idx >= 0) {
+            const next = [...models];
+            next[idx] = model;
+            saveModels(next);
+          } else {
+            saveModels([...models, model]);
+          }
+        }
+
+        function deleteModel(id) {
+          const m = models.find((x) => x.id === id);
+          if (!m) return;
+          if (m.builtin) return;
+          saveModels(models.filter((x) => x.id !== id));
+        }
+
+        function restoreModels() {
+          saveModels([...DEFAULT_MODELS]);
+        }
+
+        function renderModelSelector() {
+          const selected = els.impresora.value || models[0]?.id;
+          els.impresora.innerHTML = "";
+          for (const m of models) {
+            const opt = document.createElement("option");
+            opt.value = m.id;
+            opt.textContent = m.nombre + (m.builtin ? " (por defecto)" : "");
+            els.impresora.appendChild(opt);
+          }
+          els.impresora.value = selected && models.some((m) => m.id === selected) ? selected : models[0]?.id;
+        }
+
+        function renderModelsTable() {
+          els.tablaModelos.innerHTML = "";
+          for (const m of models) {
+            const tr = document.createElement("tr");
+
+            const tdNombre = document.createElement("td");
+            tdNombre.textContent = m.nombre;
+            if (m.builtin) {
+              const tag = document.createElement("span");
+              tag.className = "tagDefault";
+              tag.style.marginLeft = "8px";
+              tag.textContent = "por defecto";
+              tdNombre.appendChild(tag);
+            }
+
+            const tdW = document.createElement("td");
+            tdW.textContent = String(Math.round(m.potenciaW));
+
+            const tdAcc = document.createElement("td");
+            tdAcc.style.display = "flex";
+            tdAcc.style.gap = "8px";
+            tdAcc.style.flexWrap = "wrap";
+
+            const btnEdit = document.createElement("button");
+            btnEdit.type = "button";
+            btnEdit.className = "btn btnSmall";
+            btnEdit.textContent = "Editar";
+            btnEdit.addEventListener("click", () => startEditModel(m.id));
+
+            tdAcc.appendChild(btnEdit);
+
+            if (!m.builtin) {
+              const btnDel = document.createElement("button");
+              btnDel.type = "button";
+              btnDel.className = "btn btnSmall btnDanger";
+              btnDel.textContent = "Borrar";
+              btnDel.addEventListener("click", () => {
+                if (confirm(`¿Borrar modelo "${m.nombre}"?`)) {
+                  deleteModel(m.id);
+                  editingModelId = null;
+                  setModelFormMode("create");
+                  refreshModelsUI();
+                  recalc("auto");
+                }
+              });
+              tdAcc.appendChild(btnDel);
+            }
+
+            tr.appendChild(tdNombre);
+            tr.appendChild(tdW);
+            tr.appendChild(tdAcc);
+            els.tablaModelos.appendChild(tr);
+          }
+        }
+
+        function refreshModelsUI() {
+          renderModelSelector();
+          renderModelsTable();
+          syncPowerFromSelectedModel();
+        }
+
+        function syncPowerFromSelectedModel() {
+          const id = els.impresora.value;
+          const m = models.find((x) => x.id === id);
+          if (!m) return;
+          // Solo sincronizamos si el campo está vacío (evita pisar ajustes manuales)
+          if (String(els.potenciaW.value || "").trim() === "") {
+            els.potenciaW.value = String(Math.round(m.potenciaW));
+          }
+        }
+
+        function setModelFormMode(mode) {
+          if (mode === "edit") {
+            els.btnGuardarModelo.textContent = "Guardar cambios";
+            els.btnCancelarEdicion.style.display = "inline-flex";
+          } else {
+            els.btnGuardarModelo.textContent = "Guardar modelo";
+            els.btnCancelarEdicion.style.display = "none";
+            els.modeloNombre.value = "";
+            els.modeloPotenciaW.value = "";
+            editingModelId = null;
+          }
+        }
+
+        function startEditModel(id) {
+          const m = models.find((x) => x.id === id);
+          if (!m) return;
+          editingModelId = id;
+          els.modeloNombre.value = m.nombre;
+          els.modeloPotenciaW.value = String(Math.round(m.potenciaW));
+          setModelFormMode("edit");
+          clearModelFormErrors();
+        }
+
+        function clearModelFormErrors() {
+          setError("modeloNombre", "");
+          setError("modeloPotenciaW", "");
+        }
+
+        /** Cálculo */
+        function validateAndCompute() {
+          clearAllErrors();
+
+          const precioMaterial = parseNumber(els.precioMaterial);
+          const materialGramos = parseNumber(els.materialGramos);
+          const mermaPct = parseNumber(els.mermaPct);
+          const costoFijo = (() => {
+            const raw = String(els.costoFijo.value || "").trim();
+            if (raw === "") return 0;
+            return parseNumber(els.costoFijo);
+          })();
+          const precioLuz = parseNumber(els.precioLuz);
+          const potenciaW = parseNumber(els.potenciaW);
+          const consumoExtraW = (() => {
+            const raw = String(els.consumoExtraW.value || "").trim();
+            if (raw === "") return 0;
+            return parseNumber(els.consumoExtraW);
+          })();
+          const decimales = Number(els.decimales.value);
+          const tiempo = parseTimeHHMM(els.tiempo.value);
+
+          let ok = true;
+
+          if (!Number.isFinite(precioMaterial)) {
+            setError("precioMaterial", "Ingresa CLP/kg (≥ 0).");
+            ok = false;
+          }
+          if (!Number.isFinite(materialGramos)) {
+            setError("materialGramos", "Ingresa gramos (≥ 0).");
+            ok = false;
+          }
+          if (!Number.isFinite(mermaPct)) {
+            setError("mermaPct", "Ingresa % merma (≥ 0).");
+            ok = false;
+          }
+          if (!Number.isFinite(costoFijo)) {
+            setError("costoFijo", "Costo fijo inválido (≥ 0).");
+            ok = false;
+          }
+          if (!Number.isFinite(precioLuz)) {
+            setError("precioLuz", "Ingresa CLP/kWh (≥ 0).");
+            ok = false;
+          }
+          if (!tiempo) {
+            setError("tiempo", "Formato inválido. Usa hh:mm (ej: 05:30).");
+            ok = false;
+          }
+          if (!els.impresora.value) {
+            setError("impresora", "Selecciona un modelo.");
+            ok = false;
+          }
+          if (!Number.isFinite(potenciaW)) {
+            setError("potenciaW", "Ingresa potencia (W) (≥ 0).");
+            ok = false;
+          }
+          if (!Number.isFinite(consumoExtraW)) {
+            setError("consumoExtraW", "Consumo extra inválido (≥ 0).");
+            ok = false;
+          }
+          if (![0, 1, 2].includes(decimales)) {
+            setError("decimales", "Decimales inválidos.");
+            ok = false;
+          }
+
+          if (!ok) return { ok: false };
+
+          const mermaFactor = 1 + mermaPct / 100;
+          const gramosConMerma = materialGramos * mermaFactor;
+          const costoMaterial = (gramosConMerma / 1000) * precioMaterial;
+
+          const potenciaTotalW = potenciaW + consumoExtraW;
+          const kWh = (potenciaTotalW / 1000) * tiempo.hours;
+          const costoLuz = kWh * precioLuz;
+
+          const total = costoMaterial + costoLuz + costoFijo;
+
+          return {
+            ok: true,
+            inputs: {
+              precioMaterial,
+              materialGramos,
+              mermaPct,
+              costoFijo,
+              precioLuz,
+              potenciaW,
+              consumoExtraW,
+              potenciaTotalW,
+              decimales,
+              tiempo,
+            },
+            outputs: { costoMaterial, costoLuz, total, kWh, gramosConMerma },
+          };
+        }
+
+        function renderResults(calc) {
+          const d = calc.inputs.decimales;
+          els.totalCLP.textContent = formatCLP(calc.outputs.total, d);
+          els.costoMaterialCLP.textContent = formatCLP(calc.outputs.costoMaterial, d);
+          els.costoLuzCLP.textContent = formatCLP(calc.outputs.costoLuz, d);
+          els.costoFijoCLP.textContent = formatCLP(calc.inputs.costoFijo, d);
+
+          els.kwh.textContent = Number.isFinite(calc.outputs.kWh) ? calc.outputs.kWh.toFixed(3) : "0.000";
+          els.gramosConMerma.textContent = `${calc.outputs.gramosConMerma.toFixed(1)} g`;
+          els.potenciaTotal.textContent = `${Math.round(calc.inputs.potenciaTotalW)} W`;
+          els.tiempoFmt.textContent = calc.inputs.tiempo.raw;
+
+          els.totalSub.textContent = `Modelo: ${selectedModelName()} · Material: ${calc.inputs.materialGramos.toFixed(1)} g · Luz: ${calc.inputs.tiempo.raw}`;
+          setEstado("Calculado", "ok");
+        }
+
+        function selectedModelName() {
+          const id = els.impresora.value;
+          const m = models.find((x) => x.id === id);
+          return m ? m.nombre : "—";
+        }
+
+        function renderEmptyResults() {
+          const d = Number(els.decimales.value || 0);
+          els.totalCLP.textContent = formatCLP(0, d);
+          els.costoMaterialCLP.textContent = formatCLP(0, d);
+          els.costoLuzCLP.textContent = formatCLP(0, d);
+          els.costoFijoCLP.textContent = formatCLP(0, d);
+          els.kwh.textContent = "0.000";
+          els.gramosConMerma.textContent = "0.0 g";
+          els.potenciaTotal.textContent = "0 W";
+          els.tiempoFmt.textContent = "00:00";
+          els.totalSub.textContent = "Completa los campos para calcular";
+        }
+
+        function recalc(reason) {
+          const calc = validateAndCompute();
+          if (!calc.ok) {
+            if (reason === "manual") setEstado("Revisa campos", "bad");
+            else setEstado("Listo", "warn");
+            renderEmptyResults();
+            return null;
+          }
+          renderResults(calc);
+          return calc;
+        }
+
+        /** Copiar */
+        async function copyBreakdown() {
+          setError("copiar", "");
+          const calc = recalc("manual");
+          if (!calc) {
+            setError("copiar", "Primero corrige los campos para poder copiar.");
+            return;
+          }
+
+          const d = calc.inputs.decimales;
+          const text =
+            `Cotización impresión 3D\n` +
+            `- Modelo: ${selectedModelName()}\n` +
+            `- Tiempo: ${calc.inputs.tiempo.raw}\n` +
+            `- Material: ${calc.inputs.materialGramos.toFixed(1)} g (+${calc.inputs.mermaPct.toFixed(1)}% merma = ${calc.outputs.gramosConMerma.toFixed(1)} g)\n` +
+            `- Material: ${formatCLP(calc.outputs.costoMaterial, d)}\n` +
+            `- Electricidad: ${formatCLP(calc.outputs.costoLuz, d)} (kWh: ${calc.outputs.kWh.toFixed(3)})\n` +
+            `- Costo fijo: ${formatCLP(calc.inputs.costoFijo, d)}\n` +
+            `= Total: ${formatCLP(calc.outputs.total, d)}`;
+
+          try {
+            await navigator.clipboard.writeText(text);
+            setEstado("Copiado", "ok");
+          } catch {
+            // Fallback
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.left = "-9999px";
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+              document.execCommand("copy");
+              setEstado("Copiado", "ok");
+            } catch {
+              setError("copiar", "No se pudo copiar automáticamente. Selecciona y copia desde el panel.");
+            } finally {
+              document.body.removeChild(ta);
+            }
+          }
+        }
+
+        /** Eventos */
+        function attachEvents() {
+          const recalcOn = (el) => {
+            el.addEventListener("input", () => recalc("auto"));
+            el.addEventListener("change", () => recalc("auto"));
+          };
+
+          recalcOn(els.precioMaterial);
+          recalcOn(els.materialGramos);
+          recalcOn(els.mermaPct);
+          recalcOn(els.costoFijo);
+          recalcOn(els.precioLuz);
+          recalcOn(els.tiempo);
+          recalcOn(els.potenciaW);
+          recalcOn(els.consumoExtraW);
+          recalcOn(els.decimales);
+
+          els.impresora.addEventListener("change", () => {
+            // Al cambiar modelo, sincronizamos potencia desde el perfil (el usuario puede editar después).
+            const id = els.impresora.value;
+            const m = models.find((x) => x.id === id);
+            if (m) els.potenciaW.value = String(Math.round(m.potenciaW));
+            recalc("auto");
+          });
+
+          els.btnCalcular.addEventListener("click", () => recalc("manual"));
+          els.btnCopiar.addEventListener("click", copyBreakdown);
+
+          els.btnResetValues.addEventListener("click", () => {
+            setDefaults();
+            clearAllErrors();
+            recalc("auto");
+          });
+
+          els.btnLimpiarErrores.addEventListener("click", () => {
+            clearAllErrors();
+            setEstado("Listo", "warn");
+          });
+
+          els.btnGuardarModelo.addEventListener("click", () => {
+            clearModelFormErrors();
+            const nombre = String(els.modeloNombre.value || "").trim();
+            const potenciaW = parseNumber(els.modeloPotenciaW);
+            let ok = true;
+
+            if (!nombre) {
+              setError("modeloNombre", "Ingresa un nombre.");
+              ok = false;
+            }
+            if (!Number.isFinite(potenciaW)) {
+              setError("modeloPotenciaW", "Ingresa potencia (W) (≥ 0).");
+              ok = false;
+            }
+            if (!ok) return;
+
+            if (editingModelId) {
+              const prev = models.find((m) => m.id === editingModelId);
+              if (!prev) {
+                setError("modeloNombre", "Modelo no encontrado.");
+                return;
+              }
+              // Si es builtin, lo dejamos editar, pero lo convertimos en un modelo nuevo (para no tocar el default)
+              if (prev.builtin) {
+                const newId = `user-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+                upsertModel({ id: newId, nombre, potenciaW, builtin: false });
+                els.impresora.value = newId;
+                els.potenciaW.value = String(Math.round(potenciaW));
+              } else {
+                upsertModel({ ...prev, nombre, potenciaW, builtin: false });
+                els.impresora.value = prev.id;
+                els.potenciaW.value = String(Math.round(potenciaW));
+              }
+              setModelFormMode("create");
+            } else {
+              const newId = `user-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+              upsertModel({ id: newId, nombre, potenciaW, builtin: false });
+              els.impresora.value = newId;
+              els.potenciaW.value = String(Math.round(potenciaW));
+            }
+
+            refreshModelsUI();
+            recalc("auto");
+          });
+
+          els.btnCancelarEdicion.addEventListener("click", () => {
+            setModelFormMode("create");
+            clearModelFormErrors();
+          });
+
+          els.btnResetModelos.addEventListener("click", () => {
+            if (!confirm("¿Restaurar modelos? Se borrarán los modelos personalizados guardados.")) return;
+            restoreModels();
+            setModelFormMode("create");
+            refreshModelsUI();
+            recalc("auto");
+          });
+        }
+
+        function setDefaults() {
+          els.precioMaterial.value = "";
+          els.materialGramos.value = "";
+          els.mermaPct.value = "10";
+          els.costoFijo.value = "0";
+          els.precioLuz.value = "";
+          els.tiempo.value = "";
+
+          // Potencia: por defecto, tomamos del modelo seleccionado (builtin)
+          els.potenciaW.value = "";
+          els.consumoExtraW.value = "0";
+          els.decimales.value = "0";
+
+          renderModelSelector();
+          syncPowerFromSelectedModel();
+        }
+
+        /** Init */
+        function init() {
+          refreshModelsUI();
+          attachEvents();
+          setDefaults();
+          renderEmptyResults();
+          setEstado("Listo", "warn");
+        }
+
+        init();
+      })();
+    </script>
+  </body>
+</html>
+
+
