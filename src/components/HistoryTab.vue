@@ -2,7 +2,7 @@
   <div role="tabpanel">
     <div class="sectionTitle">
       <span>Historial</span>
-      <small>localStorage</small>
+      <small>guardado localmente</small>
     </div>
 
     <div class="formGrid">
@@ -14,36 +14,28 @@
       </div>
 
       <div class="field" style="grid-column: span 12">
-        <table class="modelsTable" aria-label="Historial de cálculos">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Modelo</th>
-              <th>Total</th>
-              <th style="width: 260px">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="!sortedHistory.length">
-              <td colspan="4" style="color: rgba(255,255,255,0.72)">
-                Sin historial todavía. Calcula y presiona "Guardar".
-              </td>
-            </tr>
-            <tr v-for="item in sortedHistory" :key="item.id">
-              <td>{{ formatDateTime(item.ts) }}</td>
-              <td>{{ item.modelName || '—' }}</td>
-              <td style="font-family: var(--mono)">
-                {{ formatCLP(Number(item.outputs?.total), Number(item.inputs?.decimales ?? 0)) }}
-              </td>
-              <td style="display: flex; gap: 8px; flex-wrap: wrap">
-                <button class="btn btnSmall" type="button" @click="store.loadHistoryItem(item.id)">Cargar</button>
-                <button class="btn btnSmall btnDanger" type="button" @click="store.deleteHistoryItem(item.id)">
-                  Borrar
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-if="!sortedHistory.length" class="emptyHistory">
+          Sin historial todavía. Calcula y presiona "Guardar".
+        </div>
+        <div v-else class="historyList">
+          <div v-for="item in sortedHistory" :key="item.id" class="historyCard">
+            <div class="historyCardMain">
+              <div class="historyInfo">
+                <span class="historyTotal">{{ formatCLP(Number(item.outputs?.total), Number(item.inputs?.decimales ?? 0)) }}</span>
+                <span class="historyModel">{{ item.modelName || '—' }}</span>
+              </div>
+              <div class="historyMeta">
+                <span>{{ formatDateTime(item.ts) }}</span>
+                <span v-if="item.inputs?.materialGramos">· {{ Number(item.inputs.materialGramos).toFixed(1) }} g</span>
+                <span v-if="item.inputs?.tiempo">· {{ item.inputs.tiempo }}</span>
+              </div>
+            </div>
+            <div class="historyActions">
+              <button class="btn btnSmall" type="button" @click="store.loadHistoryItem(item.id)">Cargar</button>
+              <button class="btn btnSmall btnDanger" type="button" @click="store.deleteHistoryItem(item.id)">Borrar</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

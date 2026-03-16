@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 const STORAGE_KEY = 'calc3dprints:printerModels:v1'
 const STORAGE_TAB_KEY = 'calc3dprints:activeTab:v1'
 const STORAGE_HISTORY_KEY = 'calc3dprints:history:v1'
+const STORAGE_MARGEN_KEY = 'calc3dprints:margenPct:v1'
 
 const DEFAULT_MODELS = [
   {
@@ -13,6 +14,8 @@ const DEFAULT_MODELS = [
   },
 ]
 
+let _toastId = 0
+
 // Estado compartido a nivel de módulo
 const state = reactive({
   models: [],
@@ -22,6 +25,8 @@ const state = reactive({
   lastCalc: null,
   estadoText: 'Listo',
   estadoKind: 'warn',
+  toasts: [],
+  margenPct: '30',
 
   // Inputs del formulario
   precioMaterial: '',
@@ -179,7 +184,10 @@ export function useAppStore() {
     state.history = loadHistoryFromStorage()
 
     const saved = localStorage.getItem(STORAGE_TAB_KEY)
-    state.activeTab = ['entradas', 'formato', 'perfiles', 'historial'].includes(saved) ? saved : 'entradas'
+    state.activeTab = ['entradas', 'perfiles', 'historial'].includes(saved) ? saved : 'entradas'
+
+    const savedMargen = localStorage.getItem(STORAGE_MARGEN_KEY)
+    if (savedMargen !== null) state.margenPct = savedMargen
 
     // Asegura que impresoraId sea válido
     if (!state.impresoraId || !state.models.some((m) => m.id === state.impresoraId)) {
@@ -197,6 +205,24 @@ export function useAppStore() {
   function setEstado(text, kind) {
     state.estadoText = text
     state.estadoKind = kind
+  }
+
+  // Toasts
+  function showToast(msg, kind = 'ok', duration = 2500) {
+    const id = ++_toastId
+    if (state.toasts.length >= 3) state.toasts.splice(0, state.toasts.length - 2)
+    state.toasts.push({ id, msg, kind })
+    setTimeout(() => dismissToast(id), duration)
+  }
+
+  function dismissToast(id) {
+    const idx = state.toasts.findIndex((t) => t.id === id)
+    if (idx >= 0) state.toasts.splice(idx, 1)
+  }
+
+  function setMargenPct(val) {
+    state.margenPct = val
+    try { localStorage.setItem(STORAGE_MARGEN_KEY, val) } catch {}
   }
 
   function markDirty() {
@@ -396,15 +422,21 @@ export function useAppStore() {
   async function copyBreakdown() {
     setError('copiar', '')
     if (!state.lastCalc) {
-      setError('copiar', 'Primero presiona "Calcular" para generar un cálculo.')
+      showToast('Primero calcula para copiar el desglose', 'bad')
       return
     }
     if (state.dirty) {
-      setError('copiar', 'Los datos cambiaron. Presiona "Calcular" nuevamente antes de copiar.')
+      showToast('Los datos cambiaron. Recalcula antes de copiar', 'bad')
       return
     }
     const calc = state.lastCalc
     const d = calc.inputs.decimales
+    const margen = Number(state.margenPct)
+    let margenLine = ''
+    if (Number.isFinite(margen) && margen > 0) {
+      const precioVenta = calc.outputs.total * (1 + margen / 100)
+      margenLine = `\n- Margen (${margen.toFixed(0)}%): → Precio venta: ${formatCLP(precioVenta, d)}`
+    }
     const text =
       `Cotización impresión 3D\n` +
       `- Modelo: ${selectedModelName()}\n` +
@@ -413,11 +445,12 @@ export function useAppStore() {
       `- Material: ${formatCLP(calc.outputs.costoMaterial, d)}\n` +
       `- Electricidad: ${formatCLP(calc.outputs.costoLuz, d)} (kWh: ${calc.outputs.kWh.toFixed(3)})\n` +
       `- Costo fijo: ${formatCLP(calc.inputs.costoFijo, d)}\n` +
-      `= Total: ${formatCLP(calc.outputs.total, d)}`
+      `= Total: ${formatCLP(calc.outputs.total, d)}` +
+      margenLine
 
     try {
       await navigator.clipboard.writeText(text)
-      setEstado('Copiado', 'ok')
+      showToast('Desglose copiado', 'ok')
     } catch {
       const ta = document.createElement('textarea')
       ta.value = text
@@ -428,7 +461,7 @@ export function useAppStore() {
       ta.select()
       try {
         document.execCommand('copy')
-        setEstado('Copiado', 'ok')
+        showToast('Desglose copiado', 'ok')
       } catch {
         setError('copiar', 'No se pudo copiar automáticamente. Selecciona y copia desde el panel.')
       } finally {
@@ -439,8 +472,8 @@ export function useAppStore() {
 
   // Historial
   function saveCurrentCalcToHistory() {
-    if (!state.lastCalc) { setEstado('Calcula primero', 'warn'); return }
-    if (state.dirty) { setEstado('Pendiente', 'warn'); return }
+    if (!state.lastCalc) { showToast('Calcula primero para guardar', 'warn'); return }
+    if (state.dirty) { showToast('Los datos cambiaron, recalcula primero', 'warn'); return }
 
     const id = `h-${Date.now()}-${Math.random().toString(16).slice(2)}`
     const modelId = state.impresoraId || ''
@@ -457,9 +490,10 @@ export function useAppStore() {
       consumoExtraW: state.consumoExtraW,
       decimales: state.decimales,
       potenciaTotalW: String(Math.round(state.lastCalc.inputs.potenciaTotalW)),
+      margenPct: state.margenPct,
     }
     persistHistory([{ id, ts: Date.now(), modelId, modelName, inputs: inputsSnapshot, outputs: state.lastCalc.outputs }, ...state.history].slice(0, 200))
-    setEstado('Guardado', 'ok')
+    showToast('Guardado en historial', 'ok')
   }
 
   function loadHistoryItem(id) {
@@ -484,6 +518,7 @@ export function useAppStore() {
 
     state.consumoExtraW = i.consumoExtraW ?? '0'
     state.decimales = String(i.decimales ?? '0')
+    state.margenPct = i.margenPct ?? '30'
 
     if (i.impresoraId && state.models.some((m) => m.id === i.impresoraId)) {
       state.impresoraId = i.impresoraId
@@ -507,7 +542,7 @@ export function useAppStore() {
       outputs: item.outputs,
     }
     state.dirty = false
-    setEstado('Cargado', 'ok')
+    showToast('Cálculo cargado', 'ok')
     setActiveTab('entradas')
   }
 
@@ -548,6 +583,9 @@ export function useAppStore() {
     markDirty,
     clearAllErrors,
     setEstado,
+    showToast,
+    dismissToast,
+    setMargenPct,
     startEditModel,
     setModelFormMode,
     saveModel,

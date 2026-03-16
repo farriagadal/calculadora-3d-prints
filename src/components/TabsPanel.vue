@@ -15,15 +15,6 @@
           class="tabBtn"
           type="button"
           role="tab"
-          :aria-selected="String(state.activeTab === 'formato')"
-          @click="store.setActiveTab('formato')"
-        >
-          Formato de salida
-        </button>
-        <button
-          class="tabBtn"
-          type="button"
-          role="tab"
           :aria-selected="String(state.activeTab === 'perfiles')"
           @click="store.setActiveTab('perfiles')"
         >
@@ -45,10 +36,11 @@
     </div>
 
     <div class="panelBody">
-      <InputsTab v-show="state.activeTab === 'entradas'" />
-      <OutputTab v-show="state.activeTab === 'formato'" />
-      <ModelsTab v-show="state.activeTab === 'perfiles'" />
-      <HistoryTab v-show="state.activeTab === 'historial'" />
+      <Transition name="tabFade" mode="out-in">
+        <InputsTab v-if="state.activeTab === 'entradas'" key="entradas" />
+        <ModelsTab v-else-if="state.activeTab === 'perfiles'" key="perfiles" />
+        <HistoryTab v-else-if="state.activeTab === 'historial'" key="historial" />
+      </Transition>
     </div>
   </section>
 </template>
@@ -56,7 +48,6 @@
 <script setup>
 import { useAppStore } from '../stores/useAppStore.js'
 import InputsTab from './InputsTab.vue'
-import OutputTab from './OutputTab.vue'
 import ModelsTab from './ModelsTab.vue'
 import HistoryTab from './HistoryTab.vue'
 

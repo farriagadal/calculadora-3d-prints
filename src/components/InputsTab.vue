@@ -1,117 +1,166 @@
 <template>
   <div role="tabpanel">
+
+    <!-- ── Sección Material ── -->
     <div class="sectionTitle">
-      <span>Material</span>
-      <small>CLP/kg · gramos · merma</small>
+      <div class="sectionLabel">
+        <span class="sectionIcon">🧵</span>
+        <span>Material</span>
+        <span v-if="materialCompleto" class="sectionBadge sectionBadge--ok">✓ listo</span>
+      </div>
+      <small>Filamento, merma y costos adicionales</small>
     </div>
 
     <div class="formGrid">
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
-          <label for="precioMaterial">Precio material (CLP/kg)</label>
-          <span class="hint">Ej: 16990</span>
+          <label for="precioMaterial">Precio del filamento</label>
+          <span class="hint">Ej: $16.990 / kg</span>
         </div>
-        <input
-          id="precioMaterial"
-          v-model="state.precioMaterial"
-          type="number"
-          inputmode="numeric"
-          min="0"
-          step="1"
-          placeholder="CLP por kg"
-          @input="store.markDirty()"
-          @change="store.markDirty()"
-        />
+        <div class="inputWithSuffix">
+          <input
+            id="precioMaterial"
+            v-model="state.precioMaterial"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            step="1"
+            placeholder="0"
+            :class="{ inputFilled: !!state.precioMaterial }"
+            @input="store.markDirty()"
+            @change="store.markDirty()"
+          />
+          <span class="inputSuffix">CLP/kg</span>
+        </div>
         <div class="errorText">{{ state.errors.precioMaterial }}</div>
       </div>
 
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
-          <label for="materialGramos">Material usado (g)</label>
-          <span class="hint">Ej: 120</span>
+          <label for="materialGramos">Material a usar</label>
+          <span class="hint">Ej: 120 g (del slicer)</span>
         </div>
-        <input
-          id="materialGramos"
-          v-model="state.materialGramos"
-          type="number"
-          inputmode="decimal"
-          min="0"
-          step="0.1"
-          placeholder="Gramos"
-          @input="store.markDirty()"
-          @change="store.markDirty()"
-        />
+        <div class="inputWithSuffix">
+          <input
+            id="materialGramos"
+            v-model="state.materialGramos"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.1"
+            placeholder="0"
+            :class="{ inputFilled: !!state.materialGramos }"
+            @input="store.markDirty()"
+            @change="store.markDirty()"
+          />
+          <span class="inputSuffix">g</span>
+        </div>
         <div class="errorText">{{ state.errors.materialGramos }}</div>
       </div>
 
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
-          <label for="mermaPct">Merma / desperdicio (%)</label>
+          <label for="mermaPct">Merma / desperdicio</label>
           <span class="hint">Sugerido: 10%</span>
         </div>
-        <input
-          id="mermaPct"
-          v-model="state.mermaPct"
-          type="number"
-          inputmode="decimal"
-          min="0"
-          step="0.1"
-          placeholder="%"
-          @input="store.markDirty()"
-          @change="store.markDirty()"
-        />
+        <div class="inputWithSuffix">
+          <input
+            id="mermaPct"
+            v-model="state.mermaPct"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.1"
+            placeholder="10"
+            :class="{ inputFilled: !!state.mermaPct }"
+            @input="store.markDirty()"
+            @change="store.markDirty()"
+          />
+          <span class="inputSuffix">%</span>
+        </div>
         <div class="errorText">{{ state.errors.mermaPct }}</div>
       </div>
 
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
-          <label for="costoFijo">Costo fijo (CLP) (opcional)</label>
+          <label for="costoFijo">
+            Costos adicionales
+            <span class="labelTag">opcional</span>
+          </label>
           <span class="hint">IPA, cinta, pegamento…</span>
         </div>
-        <input
-          id="costoFijo"
-          v-model="state.costoFijo"
-          type="number"
-          inputmode="numeric"
-          min="0"
-          step="1"
-          placeholder="0"
-          @input="store.markDirty()"
-          @change="store.markDirty()"
-        />
+        <div class="inputWithSuffix">
+          <input
+            id="costoFijo"
+            v-model="state.costoFijo"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            step="1"
+            placeholder="0"
+            :class="{ inputFilled: !!state.costoFijo && state.costoFijo !== '0' }"
+            @input="store.markDirty()"
+            @change="store.markDirty()"
+          />
+          <span class="inputSuffix">CLP</span>
+        </div>
         <div class="errorText">{{ state.errors.costoFijo }}</div>
       </div>
     </div>
 
+    <!-- ── Sección Electricidad ── -->
     <div class="sectionTitle">
-      <span>Electricidad</span>
-      <small>CLP/kWh · hh:mm · potencia</small>
+      <div class="sectionLabel">
+        <span class="sectionIcon">⚡</span>
+        <span>Electricidad</span>
+        <span v-if="electricidadCompleto" class="sectionBadge sectionBadge--ok">✓ listo</span>
+      </div>
+      <small>Impresora, tiempo y consumo</small>
     </div>
 
     <div class="formGrid">
+
+      <!-- Impresora primero: elegir perfil actualiza la potencia -->
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
-          <label for="precioLuz">Precio luz (CLP/kWh)</label>
+          <label for="impresora">Impresora</label>
+          <span class="hint">Carga el perfil de potencia</span>
+        </div>
+        <select id="impresora" v-model="state.impresoraId" @change="store.onImpresoraChange()">
+          <option v-for="m in state.models" :key="m.id" :value="m.id">
+            {{ m.nombre }}{{ m.builtin ? ' (por defecto)' : '' }}
+          </option>
+        </select>
+        <div class="errorText">{{ state.errors.impresora }}</div>
+      </div>
+
+      <div class="field" style="grid-column: span 6">
+        <div class="labelRow">
+          <label for="precioLuz">Precio de la electricidad</label>
           <span class="hint">Revísalo en tu boleta</span>
         </div>
-        <input
-          id="precioLuz"
-          v-model="state.precioLuz"
-          type="number"
-          inputmode="decimal"
-          min="0"
-          step="0.1"
-          placeholder="CLP/kWh"
-          @input="store.markDirty()"
-          @change="store.markDirty()"
-        />
+        <div class="inputWithSuffix">
+          <input
+            id="precioLuz"
+            v-model="state.precioLuz"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.1"
+            placeholder="220"
+            :class="{ inputFilled: !!state.precioLuz }"
+            @input="store.markDirty()"
+            @change="store.markDirty()"
+          />
+          <span class="inputSuffix">CLP/kWh</span>
+        </div>
         <div class="errorText">{{ state.errors.precioLuz }}</div>
       </div>
 
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
-          <label>Tiempo de impresión (hh:mm)</label>
-          <span class="hint">Ej: 05:30</span>
+          <label>Tiempo de impresión</label>
+          <span class="hint">Del slicer (hh:mm)</span>
         </div>
         <div class="timePicker" aria-label="Selector de tiempo (hh:mm)">
           <div class="timePart">
@@ -131,67 +180,65 @@
         <div class="errorText">{{ state.errors.tiempo }}</div>
       </div>
 
-      <div class="field" style="grid-column: span 6">
-        <div class="labelRow">
-          <label for="impresora">Impresora (modelo)</label>
-          <span class="hint">perfil guardado</span>
-        </div>
-        <select id="impresora" v-model="state.impresoraId" @change="store.onImpresoraChange()">
-          <option v-for="m in state.models" :key="m.id" :value="m.id">
-            {{ m.nombre }}{{ m.builtin ? ' (por defecto)' : '' }}
-          </option>
-        </select>
-        <div class="errorText">{{ state.errors.impresora }}</div>
-      </div>
-
       <div class="field" style="grid-column: span 3">
         <div class="labelRow">
-          <label for="potenciaW">Potencia promedio (W)</label>
-          <span class="hint">editable</span>
+          <label for="potenciaW">Potencia promedio</label>
+          <span class="hint">Del perfil · editable</span>
         </div>
-        <input
-          id="potenciaW"
-          v-model="state.potenciaW"
-          type="number"
-          inputmode="decimal"
-          min="0"
-          step="1"
-          placeholder="W"
-          @input="store.markDirty()"
-          @change="store.markDirty()"
-        />
+        <div class="inputWithSuffix">
+          <input
+            id="potenciaW"
+            v-model="state.potenciaW"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="1"
+            placeholder="0"
+            :class="{ inputFilled: !!state.potenciaW }"
+            @input="store.markDirty()"
+            @change="store.markDirty()"
+          />
+          <span class="inputSuffix">W</span>
+        </div>
         <div class="errorText">{{ state.errors.potenciaW }}</div>
       </div>
 
       <div class="field" style="grid-column: span 3">
         <div class="labelRow">
-          <label for="consumoExtraW">Consumo extra (W)</label>
-          <span class="hint">secador, etc.</span>
+          <label for="consumoExtraW">
+            Consumo extra
+            <span class="labelTag">opcional</span>
+          </label>
+          <span class="hint">Secador, cámara…</span>
         </div>
-        <input
-          id="consumoExtraW"
-          v-model="state.consumoExtraW"
-          type="number"
-          inputmode="decimal"
-          min="0"
-          step="1"
-          placeholder="0"
-          @input="store.markDirty()"
-          @change="store.markDirty()"
-        />
+        <div class="inputWithSuffix">
+          <input
+            id="consumoExtraW"
+            v-model="state.consumoExtraW"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="1"
+            placeholder="0"
+            :class="{ inputFilled: !!state.consumoExtraW && state.consumoExtraW !== '0' }"
+            @input="store.markDirty()"
+            @change="store.markDirty()"
+          />
+          <span class="inputSuffix">W</span>
+        </div>
         <div class="errorText">{{ state.errors.consumoExtraW }}</div>
       </div>
     </div>
 
     <p class="note">
-      Nota: la <b>fuente</b> de la impresora puede ser, por ejemplo, de 400W, pero el <b>consumo promedio real</b>
-      suele ser menor y depende del perfil (temperaturas, velocidad, cama, ventiladores). Si tienes un medidor (enchufe
-      inteligente / wattímetro), ajusta este valor.
+      💡 La <b>potencia promedio real</b> suele ser menor a la potencia máxima de la fuente. Depende de temperaturas,
+      velocidad y ventiladores. Si tienes un enchufe inteligente o wattímetro, usa ese valor para mayor precisión.
     </p>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useAppStore } from '../stores/useAppStore.js'
 
 const store = useAppStore()
@@ -200,4 +247,52 @@ const { state } = store
 function pad2(n) {
   return String(n).padStart(2, '0')
 }
+
+const materialCompleto = computed(() =>
+  !!state.precioMaterial && !!state.materialGramos && !!state.mermaPct
+)
+
+const electricidadCompleto = computed(() =>
+  !!state.precioLuz &&
+  !!state.potenciaW &&
+  (Number(state.tiempoHoras) > 0 || Number(state.tiempoMinutos) > 0)
+)
 </script>
+
+<style scoped>
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionIcon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.sectionBadge {
+  font-size: 0.73rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.sectionBadge--ok {
+  background: rgba(35, 197, 94, 0.15);
+  border: 1px solid rgba(35, 197, 94, 0.35);
+  color: #23c55e;
+}
+
+.labelTag {
+  font-size: 0.72rem;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.48);
+  font-weight: 500;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+</style>
