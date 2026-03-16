@@ -83,11 +83,11 @@
 
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
-          <label for="costoFijo">
-            Costos adicionales
+          <label for="costoFijo">Costos adicionales</label>
+          <span class="labelRight">
             <span class="labelTag">opcional</span>
-          </label>
-          <span class="hint">IPA, cinta, pegamento…</span>
+            <span class="hint">IPA, cinta, pegamento…</span>
+          </span>
         </div>
         <div class="inputWithSuffix">
           <input
@@ -164,14 +164,12 @@
         </div>
         <div class="timePicker" aria-label="Selector de tiempo (hh:mm)">
           <div class="timePart">
-            <label class="hint" for="tiempoHoras">Horas</label>
             <select id="tiempoHoras" v-model="state.tiempoHoras" @change="store.markDirty()">
               <option v-for="h in 201" :key="h - 1" :value="String(h - 1)">{{ h - 1 }}</option>
             </select>
           </div>
           <span class="sep">:</span>
           <div class="timePart">
-            <label class="hint" for="tiempoMinutos">Minutos</label>
             <select id="tiempoMinutos" v-model="state.tiempoMinutos" @change="store.markDirty()">
               <option v-for="m in 60" :key="m - 1" :value="pad2(m - 1)">{{ pad2(m - 1) }}</option>
             </select>
@@ -205,11 +203,11 @@
 
       <div class="field" style="grid-column: span 3">
         <div class="labelRow">
-          <label for="consumoExtraW">
-            Consumo extra
+          <label for="consumoExtraW">Consumo extra</label>
+          <span class="labelRight">
             <span class="labelTag">opcional</span>
-          </label>
-          <span class="hint">Secador, cámara…</span>
+            <span class="hint">Secador, cámara…</span>
+          </span>
         </div>
         <div class="inputWithSuffix">
           <input
@@ -285,6 +283,12 @@ const electricidadCompleto = computed(() =>
   color: #23c55e;
 }
 
+.labelRight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .labelTag {
   font-size: 0.72rem;
   padding: 1px 6px;
@@ -292,7 +296,6 @@ const electricidadCompleto = computed(() =>
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: rgba(255, 255, 255, 0.48);
   font-weight: 500;
-  vertical-align: middle;
-  margin-left: 4px;
+  margin-left: 0;
 }
 </style>
