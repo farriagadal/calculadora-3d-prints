@@ -99,3 +99,4 @@ npx vercel@latest --prod
 - `vercel.json` incluye un **rewrite** a `index.html` (útil si después agregas rutas tipo SPA).
 
 
+# calculadora-3d-prints
