@@ -32,6 +32,7 @@ const strings = {
     // InputsTab – básico
     labelPrecioMaterial: 'Precio del filamento',
     hintPrecioMaterial: 'Ej: $16.990 / kg',
+    hintPrecioMaterialUSD: 'Ej: 20 USD/kg',
     labelMaterialGramos: 'Material a usar',
     hintMaterialGramos: 'Ej: 120 g (del slicer)',
     labelPrecioLuz: 'Precio de la electricidad',
@@ -168,7 +169,8 @@ const strings = {
 
     // InputsTab – basic
     labelPrecioMaterial: 'Filament price',
-    hintPrecioMaterial: 'E.g. $19.99 / kg',
+    hintPrecioMaterial: 'E.g. $16.990 / kg',
+    hintPrecioMaterialUSD: 'E.g. $19.99 / kg',
     labelMaterialGramos: 'Material used',
     hintMaterialGramos: 'E.g. 120 g (from slicer)',
     labelPrecioLuz: 'Electricity price',

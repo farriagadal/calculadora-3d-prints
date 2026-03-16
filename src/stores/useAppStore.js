@@ -7,12 +7,16 @@ const STORAGE_HISTORY_KEY = 'calc3dprints:history:v1'
 const STORAGE_MARGEN_KEY = 'calc3dprints:margenPct:v1'
 
 const DEFAULT_MODELS = [
-  {
-    id: 'builtin-kobra2pro',
-    nombre: 'Anycubic Kobra 2 Pro',
-    potenciaW: 200,
-    builtin: true,
-  },
+  { id: 'builtin-kobra2pro',   nombre: 'Anycubic Kobra 2 Pro',  potenciaW: 150, builtin: true },
+  { id: 'builtin-bambu-a1',    nombre: 'Bambu Lab A1',           potenciaW: 95,  builtin: true },
+  { id: 'builtin-bambu-a1mini',nombre: 'Bambu Lab A1 Mini',      potenciaW: 55,  builtin: true },
+  { id: 'builtin-bambu-p1s',   nombre: 'Bambu Lab P1S',          potenciaW: 100, builtin: true },
+  { id: 'builtin-bambu-x1c',   nombre: 'Bambu Lab X1 Carbon',    potenciaW: 130, builtin: true },
+  { id: 'builtin-prusa-mk4',   nombre: 'Prusa MK4',              potenciaW: 95,  builtin: true },
+  { id: 'builtin-prusa-mini',  nombre: 'Prusa Mini+',            potenciaW: 70,  builtin: true },
+  { id: 'builtin-ender3v2',    nombre: 'Creality Ender 3 V2',    potenciaW: 120, builtin: true },
+  { id: 'builtin-k1',          nombre: 'Creality K1',            potenciaW: 100, builtin: true },
+  { id: 'builtin-neptune4pro', nombre: 'Elegoo Neptune 4 Pro',   potenciaW: 110, builtin: true },
 ]
 
 let _toastId = 0
@@ -131,9 +135,9 @@ function loadModelsFromStorage() {
         builtin: Boolean(m.builtin),
       }))
       .filter((m) => m.id && m.nombre && Number.isFinite(m.potenciaW) && m.potenciaW >= 0)
-    const hasKobra = sanitized.some((m) => m.id === 'builtin-kobra2pro')
-    if (!hasKobra) sanitized.unshift(DEFAULT_MODELS[0])
-    return sanitized
+    // Insertar builtins faltantes al inicio (en orden original)
+    const missing = DEFAULT_MODELS.filter(d => !sanitized.some(m => m.id === d.id))
+    return [...missing, ...sanitized]
   } catch {
     return [...DEFAULT_MODELS]
   }

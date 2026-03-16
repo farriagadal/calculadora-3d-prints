@@ -6,7 +6,7 @@
     transform: scaleY(1.06);
     letter-spacing: -6%;
     font-size: 27px;
-    margin-bottom: 22px;">{{ t('appTitle') }}</h1>
+    margin-bottom: 22px;text-shadow: 3px 3px #000000;">{{ t('appTitle') }}</h1>
         <div class="headerControls">
           <div class="localeSwitcher">
             <button class="tabBtn" :aria-selected="String(localeState.lang === 'es')" @click="setLang('es')">ES</button>

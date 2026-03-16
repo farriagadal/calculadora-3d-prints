@@ -6,7 +6,7 @@
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
           <label for="precioMaterial">{{ t('labelPrecioMaterial') }}</label>
-          <span class="hint">{{ t('hintPrecioMaterial') }}</span>
+          <span class="hint">{{ localeState.currency === 'USD' ? t('hintPrecioMaterialUSD') : t('hintPrecioMaterial') }}</span>
         </div>
         <div class="inputWithSuffix">
           <input
