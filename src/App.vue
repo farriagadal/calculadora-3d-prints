@@ -51,16 +51,8 @@ function scrollToResults() {
   document.getElementById('resultsPanel')?.scrollIntoView({ behavior: 'smooth' })
 }
 
-function handleKeydown(e) {
-  if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
-    e.preventDefault()
-    store.recalcManual()
-  }
-}
-
 onMounted(() => {
   init()
-  document.addEventListener('keydown', handleKeydown)
 
   // IntersectionObserver para el FAB móvil
   setTimeout(() => {
@@ -76,7 +68,6 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  document.removeEventListener('keydown', handleKeydown)
   if (observer) observer.disconnect()
 })
 

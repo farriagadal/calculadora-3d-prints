@@ -31,11 +31,11 @@
         </button>
       </div>
       <div class="rowActions">
-        <button class="btn btnGhost btnSmall" type="button" @click="store.resetValues()">Resetear valores</button>
+        <button class="tabBtn" type="button" @click="store.resetValues()">Resetear valores</button>
       </div>
     </div>
 
-    <div class="panelBody">
+    <div class="panelBody" style="padding: 10px 25px 25px;">
       <Transition name="tabFade" mode="out-in">
         <InputsTab v-if="state.activeTab === 'entradas'" key="entradas" />
         <ModelsTab v-else-if="state.activeTab === 'perfiles'" key="perfiles" />

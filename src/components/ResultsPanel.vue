@@ -1,22 +1,5 @@
 <template>
   <aside class="panel resultsPanel" id="resultsPanel" aria-label="Resultados">
-    <div class="panelHeader">
-      <h2>Resultados</h2>
-      <div class="rowActions">
-        <button class="btn btnPrimary btnSmall" type="button" @click="store.recalcManual()">Calcular</button>
-        <button class="btn btnSmall" type="button" @click="store.saveCurrentCalcToHistory()">Guardar</button>
-        <button
-          class="btn btnSmall"
-          type="button"
-          @click="store.copyBreakdown()"
-          title="Copiar desglose para cotización"
-        >
-          Copiar
-        </button>
-        <div class="pill" :style="estadoStyle">{{ state.estadoText }}</div>
-      </div>
-    </div>
-
     <div class="panelBody">
       <!-- Empty state -->
       <div v-if="!state.lastCalc" class="emptyState">
@@ -135,9 +118,12 @@
           </div>
         </div>
 
-        <button class="btn btnPrimary copyBtnFull" type="button" @click="store.copyBreakdown()">
-          Copiar desglose para cotización
-        </button>
+        <div class="bottomActions">
+          <button class="btn btnPrimary copyBtnFull" type="button" @click="store.copyBreakdown()">
+            Copiar desglose para cotización
+          </button>
+          <button class="btn btnSmall" type="button" @click="store.saveCurrentCalcToHistory()">Guardar</button>
+        </div>
       </div>
 
       <div class="errorText" v-if="state.errors.copiar">{{ state.errors.copiar }}</div>
@@ -171,14 +157,6 @@ watch(() => state.lastCalc?.outputs?.total, (newVal, oldVal) => {
     flashTotal.value = true
     setTimeout(() => { flashTotal.value = false }, 600)
   }
-})
-
-const estadoStyle = computed(() => {
-  const k = state.estadoKind
-  if (k === 'ok') return { borderColor: 'rgba(35, 197, 94, 0.45)', background: 'rgba(35, 197, 94, 0.12)' }
-  if (k === 'bad') return { borderColor: 'rgba(255, 77, 95, 0.45)', background: 'rgba(255, 77, 95, 0.12)' }
-  if (k === 'warn') return { borderColor: 'rgba(255, 176, 32, 0.5)', background: 'rgba(255, 176, 32, 0.12)' }
-  return { borderColor: 'rgba(255,255,255,0.16)', background: 'rgba(255,255,255,0.06)' }
 })
 
 const d = computed(() => {
@@ -239,3 +217,15 @@ const fijoPct = computed(() => {
   return (state.lastCalc.inputs.costoFijo / state.lastCalc.outputs.total) * 100
 })
 </script>
+
+<style scoped>
+.bottomActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.bottomActions .copyBtnFull {
+  flex: 1;
+}
+</style>
