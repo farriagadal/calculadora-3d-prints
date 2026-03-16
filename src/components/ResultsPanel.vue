@@ -3,14 +3,14 @@
     <div class="panelBody">
       <!-- Empty state -->
       <div v-if="!state.lastCalc" class="emptyState">
-        <div class="emptyTitle">Completa los campos para calcular</div>
+        <div class="emptyTitle">{{ t('emptyTitle') }}</div>
         <ul class="emptyChecklist">
-          <li :class="{ checked: !!state.precioMaterial }">Precio material (CLP/kg)</li>
-          <li :class="{ checked: !!state.materialGramos }">Material usado (g)</li>
-          <li :class="{ checked: !!state.precioLuz }">Precio electricidad (CLP/kWh)</li>
-          <li :class="{ checked: tiempoFilled }">Tiempo de impresión</li>
+          <li :class="{ checked: !!state.precioMaterial }">{{ t('emptyItem1') }} ({{ localeState.currency }}/kg)</li>
+          <li :class="{ checked: !!state.materialGramos }">{{ t('emptyItem2') }}</li>
+          <li :class="{ checked: !!state.precioLuz }">{{ t('emptyItem3') }} ({{ localeState.currency }}/kWh)</li>
+          <li :class="{ checked: tiempoFilled }">{{ t('emptyItem4') }}</li>
         </ul>
-        <p class="emptyHint">Se calcula automáticamente al completar los campos</p>
+        <p class="emptyHint">{{ t('emptyHint') }}</p>
       </div>
 
       <!-- Resultados -->
@@ -18,14 +18,14 @@
         <div class="totalCard">
           <div class="totalRow">
             <div>
-              <div class="totalLabel">Costo estimado</div>
+              <div class="totalLabel">{{ t('totalLabel') }}</div>
               <div class="hint">{{ totalSub }}</div>
             </div>
-            <div class="totalValue" :class="{ flashTotal: flashTotal }">{{ totalCLP }}</div>
+            <div class="totalValue" :class="{ flashTotal: flashTotal }">{{ totalFmt }}</div>
           </div>
 
           <div class="margenRow">
-            <label class="hint" for="margenPct">Margen</label>
+            <label class="hint" for="margenPct">{{ t('margenLabel') }}</label>
             <div class="margenInput">
               <input
                 id="margenPct"
@@ -41,12 +41,12 @@
               <span class="hint">%</span>
             </div>
             <div class="ventaValue" v-if="precioVenta !== null">
-              → Precio venta: <strong>{{ precioVentaCLP }}</strong>
+              {{ t('precioVentaPrefix') }} <strong>{{ precioVentaFmt }}</strong>
             </div>
           </div>
 
           <div class="decimalsRow">
-            <label class="hint" for="decimalesResult">Decimales</label>
+            <label class="hint" for="decimalesResult">{{ t('decimalesLabel') }}</label>
             <select id="decimalesResult" v-model="state.decimales" class="decimalesSelect" @change="store.markDirty()">
               <option value="0">0</option>
               <option value="1">1</option>
@@ -60,88 +60,87 @@
             <div
               class="costBarSeg segMaterial"
               :style="{ width: materialPct + '%' }"
-              :title="`Material: ${materialPct.toFixed(1)}%`"
+              :title="`${t('rowMaterial')}: ${materialPct.toFixed(1)}%`"
             ></div>
             <div
               class="costBarSeg segLuz"
               :style="{ width: luzPct + '%' }"
-              :title="`Electricidad: ${luzPct.toFixed(1)}%`"
+              :title="`${t('rowElectricidad')}: ${luzPct.toFixed(1)}%`"
             ></div>
             <div
               class="costBarSeg segFijo"
               :style="{ width: fijoPct + '%' }"
-              :title="`Costo fijo: ${fijoPct.toFixed(1)}%`"
+              :title="`${t('rowCostoFijo')}: ${fijoPct.toFixed(1)}%`"
             ></div>
           </div>
           <div class="costBarLegend">
             <span class="legendItem">
-              <span class="legendDot dotMaterial"></span>Material {{ materialPct.toFixed(0) }}%
+              <span class="legendDot dotMaterial"></span>{{ t('rowMaterial') }} {{ materialPct.toFixed(0) }}%
             </span>
             <span class="legendItem">
-              <span class="legendDot dotLuz"></span>Luz {{ luzPct.toFixed(0) }}%
+              <span class="legendDot dotLuz"></span>{{ t('rowElectricidad') }} {{ luzPct.toFixed(0) }}%
             </span>
             <span v-if="fijoPct > 0.5" class="legendItem">
-              <span class="legendDot dotFijo"></span>Fijo {{ fijoPct.toFixed(0) }}%
+              <span class="legendDot dotFijo"></span>{{ t('rowCostoFijo') }} {{ fijoPct.toFixed(0) }}%
             </span>
           </div>
         </div>
 
         <div class="breakdown">
           <div class="itemRow">
-            <span>Material</span>
-            <span>{{ costoMaterialCLP }}</span>
+            <span>{{ t('rowMaterial') }}</span>
+            <span>{{ costoMaterialFmt }}</span>
           </div>
           <div class="itemRow">
-            <span>Electricidad</span>
-            <span>{{ costoLuzCLP }}</span>
+            <span>{{ t('rowElectricidad') }}</span>
+            <span>{{ costoLuzFmt }}</span>
           </div>
           <div class="itemRow">
-            <span>Costo fijo</span>
-            <span>{{ costoFijoCLP }}</span>
+            <span>{{ t('rowCostoFijo') }}</span>
+            <span>{{ costoFijoFmt }}</span>
           </div>
           <div class="divider"></div>
           <div class="itemRow">
-            <span>kWh estimados</span>
+            <span>{{ t('rowKwh') }}</span>
             <span>{{ kWh }}</span>
           </div>
           <div class="itemRow">
-            <span>Material con merma</span>
+            <span>{{ t('rowGramosConMerma') }}</span>
             <span>{{ gramosConMerma }}</span>
           </div>
           <div class="itemRow">
-            <span>Potencia total</span>
+            <span>{{ t('rowPotenciaTotal') }}</span>
             <span>{{ potenciaTotal }}</span>
           </div>
           <div class="itemRow">
-            <span>Tiempo</span>
+            <span>{{ t('rowTiempo') }}</span>
             <span>{{ tiempoFmt }}</span>
           </div>
         </div>
 
         <div class="bottomActions">
           <button class="btn btnPrimary copyBtnFull" type="button" @click="store.copyBreakdown()">
-            Copiar desglose para cotización
+            {{ t('btnCopiar') }}
           </button>
-          <button class="btn btnSmall" type="button" @click="store.saveCurrentCalcToHistory()">Guardar</button>
+          <button class="btn btnSmall" type="button" @click="store.saveCurrentCalcToHistory()">{{ t('btnGuardar') }}</button>
         </div>
       </div>
 
       <div class="errorText" v-if="state.errors.copiar">{{ state.errors.copiar }}</div>
 
-      <p class="note">
-        Este cálculo es una <b>estimación</b>. Si quieres afinar la electricidad, mide el consumo promedio real de tu
-        impresora (W) durante una impresión típica.
-      </p>
+      <p class="note" v-html="t('noteResultados')"></p>
     </div>
   </aside>
 </template>
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { useAppStore, formatCLP } from '../stores/useAppStore.js'
+import { useAppStore } from '../stores/useAppStore.js'
+import { useLocaleStore, formatAmount } from '../stores/useLocaleStore.js'
 
 const store = useAppStore()
 const { state } = store
+const { localeState, t } = useLocaleStore()
 
 const flashTotal = ref(false)
 
@@ -164,17 +163,17 @@ const d = computed(() => {
   return Number(state.decimales ?? 0)
 })
 
-const totalCLP = computed(() =>
-  state.lastCalc ? formatCLP(state.lastCalc.outputs.total, d.value) : formatCLP(0, d.value)
+const totalFmt = computed(() =>
+  state.lastCalc ? formatAmount(state.lastCalc.outputs.total, d.value) : formatAmount(0, d.value)
 )
-const costoMaterialCLP = computed(() =>
-  state.lastCalc ? formatCLP(state.lastCalc.outputs.costoMaterial, d.value) : formatCLP(0, d.value)
+const costoMaterialFmt = computed(() =>
+  state.lastCalc ? formatAmount(state.lastCalc.outputs.costoMaterial, d.value) : formatAmount(0, d.value)
 )
-const costoLuzCLP = computed(() =>
-  state.lastCalc ? formatCLP(state.lastCalc.outputs.costoLuz, d.value) : formatCLP(0, d.value)
+const costoLuzFmt = computed(() =>
+  state.lastCalc ? formatAmount(state.lastCalc.outputs.costoLuz, d.value) : formatAmount(0, d.value)
 )
-const costoFijoCLP = computed(() =>
-  state.lastCalc ? formatCLP(state.lastCalc.inputs.costoFijo, d.value) : formatCLP(0, d.value)
+const costoFijoFmt = computed(() =>
+  state.lastCalc ? formatAmount(state.lastCalc.inputs.costoFijo, d.value) : formatAmount(0, d.value)
 )
 const kWh = computed(() => (state.lastCalc ? state.lastCalc.outputs.kWh.toFixed(3) : '0.000'))
 const gramosConMerma = computed(() =>
@@ -188,7 +187,7 @@ const tiempoFmt = computed(() => (state.lastCalc ? state.lastCalc.inputs.tiempo.
 const totalSub = computed(() => {
   if (!state.lastCalc) return ''
   const c = state.lastCalc
-  return `Modelo: ${store.selectedModelName()} · Material: ${c.inputs.materialGramos.toFixed(1)} g · Luz: ${c.inputs.tiempo.raw}`
+  return `${store.selectedModelName()} · ${c.inputs.materialGramos.toFixed(1)} g · ${c.inputs.tiempo.raw}`
 })
 
 const precioVenta = computed(() => {
@@ -198,8 +197,8 @@ const precioVenta = computed(() => {
   return state.lastCalc.outputs.total * (1 + m / 100)
 })
 
-const precioVentaCLP = computed(() =>
-  precioVenta.value !== null ? formatCLP(precioVenta.value, d.value) : ''
+const precioVentaFmt = computed(() =>
+  precioVenta.value !== null ? formatAmount(precioVenta.value, d.value) : ''
 )
 
 const materialPct = computed(() => {

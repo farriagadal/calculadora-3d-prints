@@ -2,14 +2,23 @@
   <div class="container">
     <header>
       <div class="titleRow">
-        <h1>Calculadora de costo de impresión 3D</h1>
-        <div class="pill" title="Chile: la electricidad normalmente se cobra en CLP por kWh">
-          Unidad luz: <code>CLP/kWh</code> · Tiempo: <code>hh:mm</code>
+        <h1 style="font-weight: 900;
+    transform: scaleY(1.06);
+    letter-spacing: -6%;
+    font-size: 27px;
+    margin-bottom: 22px;">{{ t('appTitle') }}</h1>
+        <div class="headerControls">
+          <div class="localeSwitcher">
+            <button class="tabBtn" :aria-selected="String(localeState.lang === 'es')" @click="setLang('es')">ES</button>
+            <button class="tabBtn" :aria-selected="String(localeState.lang === 'en')" @click="setLang('en')">EN</button>
+          </div>
+          <div class="localeSwitcher">
+            <button class="tabBtn" :aria-selected="String(localeState.currency === 'CLP')" @click="setCurrency('CLP')">CLP</button>
+            <button class="tabBtn" :aria-selected="String(localeState.currency === 'USD')" @click="setCurrency('USD')">USD</button>
+          </div>
         </div>
       </div>
-      <p class="subtitle">
-        Estima costo por <b>material</b> + <b>electricidad</b> (y un costo fijo opcional). Se calcula automáticamente al escribir. Perfiles guardados en tu navegador.
-      </p>
+      <p class="subtitle" v-html="t('appSubtitle')"></p>
     </header>
 
     <main class="grid">
@@ -17,7 +26,7 @@
       <ResultsPanel />
     </main>
 
-    <footer>Hecho para cotizar rápido: material + luz (Chile) · modelos guardados localmente</footer>
+    <footer>{{ t('appFooter') }}</footer>
   </div>
 
   <ToastContainer />
@@ -28,19 +37,22 @@
     type="button"
     @click="scrollToResults"
   >
-    Ver resultados ↓
+    {{ t('fabLabel') }}
   </button>
 </template>
 
 <script setup>
 import { onMounted, onBeforeUnmount, watch, ref, computed } from 'vue'
 import { useAppStore } from './stores/useAppStore.js'
+import { useLocaleStore } from './stores/useLocaleStore.js'
 import TabsPanel from './components/TabsPanel.vue'
 import ResultsPanel from './components/ResultsPanel.vue'
 import ToastContainer from './components/ToastContainer.vue'
 
 const store = useAppStore()
 const { state, init, recalcAuto } = store
+
+const { localeState, t, setLang, setCurrency } = useLocaleStore()
 
 const resultsVisible = ref(false)
 const fabVisible = computed(() => !!state.lastCalc && !resultsVisible.value)
@@ -84,3 +96,16 @@ watch(
   }
 )
 </script>
+
+<style scoped>
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.localeSwitcher {
+  display: flex;
+  align-items: center;
+}
+</style>

@@ -1,4 +1,4 @@
-# Calculadora de costo de impresión 3D (Chile, CLP)
+# Calculadora de impresión 3D (Chile, CLP)
 
 Una sola página (`index.html`) para estimar el costo de una impresión 3D en **pesos chilenos (CLP)** considerando:
 

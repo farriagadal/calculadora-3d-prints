@@ -274,9 +274,10 @@ select:focus {
 }
 
 .errorText {
-  color: rgba(255, 143, 156, 0.92);
+  color: rgba(240, 82, 101, 0.92);
   font-size: 0.8rem;
   min-height: 1.1em;
+  font-weight: 500;
 }
 
 .rowActions {

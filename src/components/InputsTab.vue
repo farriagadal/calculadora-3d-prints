@@ -5,8 +5,8 @@
     <div class="formGrid">
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
-          <label for="precioMaterial">Precio del filamento</label>
-          <span class="hint">Ej: $16.990 / kg</span>
+          <label for="precioMaterial">{{ t('labelPrecioMaterial') }}</label>
+          <span class="hint">{{ t('hintPrecioMaterial') }}</span>
         </div>
         <div class="inputWithSuffix">
           <input
@@ -21,15 +21,15 @@
             @input="store.markDirty()"
             @change="store.markDirty()"
           />
-          <span class="inputSuffix">CLP/kg</span>
+          <span class="inputSuffix">{{ localeState.currency }}/kg</span>
         </div>
         <div class="errorText">{{ state.errors.precioMaterial }}</div>
       </div>
 
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
-          <label for="materialGramos">Material a usar</label>
-          <span class="hint">Ej: 120 g (del slicer)</span>
+          <label for="materialGramos">{{ t('labelMaterialGramos') }}</label>
+          <span class="hint">{{ t('hintMaterialGramos') }}</span>
         </div>
         <div class="inputWithSuffix">
           <input
@@ -51,8 +51,8 @@
 
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
-          <label for="precioLuz">Precio de la electricidad</label>
-          <span class="hint">Revísalo en tu boleta</span>
+          <label for="precioLuz">{{ t('labelPrecioLuz') }}</label>
+          <span class="hint">{{ t('hintPrecioLuz') }}</span>
         </div>
         <div class="inputWithSuffix">
           <input
@@ -67,15 +67,15 @@
             @input="store.markDirty()"
             @change="store.markDirty()"
           />
-          <span class="inputSuffix">CLP/kWh</span>
+          <span class="inputSuffix">{{ localeState.currency }}/kWh</span>
         </div>
         <div class="errorText">{{ state.errors.precioLuz }}</div>
       </div>
 
       <div class="field" style="grid-column: span 6">
         <div class="labelRow">
-          <label>Tiempo de impresión</label>
-          <span class="hint">Del slicer (hh:mm)</span>
+          <label>{{ t('labelTiempo') }}</label>
+          <span class="hint">{{ t('hintTiempo') }}</span>
         </div>
         <div class="timePicker" aria-label="Selector de tiempo (hh:mm)">
           <div class="timePart">
@@ -97,28 +97,28 @@
     <!-- ── Botón configuración avanzada ── -->
     <button class="tabBtn advancedToggle" type="button" @click="mostrarAvanzado = !mostrarAvanzado">
       <span class="advancedToggleIcon">{{ mostrarAvanzado ? '▾' : '▸' }}</span>
-      Configuración avanzada
+      {{ t('advancedToggle') }}
       <span v-if="tieneValoresAvanzados" class="advancedBadge">●</span>
     </button>
 
     <!-- ── Sección avanzada ── -->
-    <div v-if="mostrarAvanzado" style="padding-top: 10px;"">
+    <div v-if="mostrarAvanzado" style="padding-top: 10px;">
 
       <!-- Material avanzado -->
       <div class="sectionTitle">
         <div class="sectionLabel">
           <span class="sectionIcon">🧵</span>
-          <span>Material</span>
-          <span v-if="materialCompleto" class="sectionBadge sectionBadge--ok">✓ listo</span>
+          <span>{{ t('sectionMaterial') }}</span>
+          <span v-if="materialCompleto" class="sectionBadge sectionBadge--ok">{{ t('badgeListo') }}</span>
         </div>
-        <small>Merma y costos adicionales</small>
+        <small>{{ t('sectionMaterialSub') }}</small>
       </div>
 
       <div class="formGrid">
         <div class="field" style="grid-column: span 6">
           <div class="labelRow">
-            <label for="mermaPct">Merma / desperdicio</label>
-            <span class="hint">Sugerido: 10%</span>
+            <label for="mermaPct">{{ t('labelMerma') }}</label>
+            <span class="hint">{{ t('hintMerma') }}</span>
           </div>
           <div class="inputWithSuffix">
             <input
@@ -140,10 +140,10 @@
 
         <div class="field" style="grid-column: span 6">
           <div class="labelRow">
-            <label for="costoFijo">Costos adicionales</label>
+            <label for="costoFijo">{{ t('labelCostoFijo') }}</label>
             <span class="labelRight">
-              <span class="labelTag">opcional</span>
-              <span class="hint">IPA, cinta, pegamento…</span>
+              <span class="labelTag">{{ t('labelOpcional') }}</span>
+              <span class="hint">{{ t('hintCostoFijo') }}</span>
             </span>
           </div>
           <div class="inputWithSuffix">
@@ -159,7 +159,7 @@
               @input="store.markDirty()"
               @change="store.markDirty()"
             />
-            <span class="inputSuffix">CLP</span>
+            <span class="inputSuffix">{{ localeState.currency }}</span>
           </div>
           <div class="errorText">{{ state.errors.costoFijo }}</div>
         </div>
@@ -169,21 +169,21 @@
       <div class="sectionTitle">
         <div class="sectionLabel">
           <span class="sectionIcon">⚡</span>
-          <span>Electricidad</span>
-          <span v-if="electricidadCompleto" class="sectionBadge sectionBadge--ok">✓ listo</span>
+          <span>{{ t('sectionElectricidad') }}</span>
+          <span v-if="electricidadCompleto" class="sectionBadge sectionBadge--ok">{{ t('badgeListo') }}</span>
         </div>
-        <small>Impresora y consumo</small>
+        <small>{{ t('sectionElectricidadSub') }}</small>
       </div>
 
       <div class="formGrid">
         <div class="field" style="grid-column: span 6">
           <div class="labelRow">
-            <label for="impresora">Impresora</label>
-            <span class="hint">Carga el perfil de potencia</span>
+            <label for="impresora">{{ t('labelImpresora') }}</label>
+            <span class="hint">{{ t('hintImpresora') }}</span>
           </div>
           <select id="impresora" v-model="state.impresoraId" @change="store.onImpresoraChange()">
             <option v-for="m in state.models" :key="m.id" :value="m.id">
-              {{ m.nombre }}{{ m.builtin ? ' (por defecto)' : '' }}
+              {{ m.nombre }}{{ m.builtin ? ` ${t('hintImpresoraDefault')}` : '' }}
             </option>
           </select>
           <div class="errorText">{{ state.errors.impresora }}</div>
@@ -191,8 +191,8 @@
 
         <div class="field" style="grid-column: span 3">
           <div class="labelRow">
-            <label for="potenciaW">Potencia promedio</label>
-            <span class="hint">Del perfil · editable</span>
+            <label for="potenciaW">{{ t('labelPotencia') }}</label>
+            <span class="hint">{{ t('hintPotencia') }}</span>
           </div>
           <div class="inputWithSuffix">
             <input
@@ -214,10 +214,10 @@
 
         <div class="field" style="grid-column: span 3">
           <div class="labelRow">
-            <label for="consumoExtraW">Consumo extra</label>
+            <label for="consumoExtraW">{{ t('labelConsumoExtra') }}</label>
             <span class="labelRight">
-              <span class="labelTag">opcional</span>
-              <span class="hint">Secador, cámara…</span>
+              <span class="labelTag">{{ t('labelOpcional') }}</span>
+              <span class="hint">{{ t('hintConsumoExtra') }}</span>
             </span>
           </div>
           <div class="inputWithSuffix">
@@ -239,10 +239,7 @@
         </div>
       </div>
 
-      <p class="note">
-        💡 La <b>potencia promedio real</b> suele ser menor a la potencia máxima de la fuente. Depende de temperaturas,
-        velocidad y ventiladores. Si tienes un enchufe inteligente o wattímetro, usa ese valor para mayor precisión.
-      </p>
+      <p class="note" v-html="t('noteElectricidad')"></p>
     </div>
   </div>
 </template>
@@ -250,9 +247,11 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useAppStore } from '../stores/useAppStore.js'
+import { useLocaleStore } from '../stores/useLocaleStore.js'
 
 const store = useAppStore()
 const { state } = store
+const { localeState, t } = useLocaleStore()
 
 const mostrarAvanzado = ref(false)
 

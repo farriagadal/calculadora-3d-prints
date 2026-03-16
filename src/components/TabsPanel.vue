@@ -9,7 +9,7 @@
           :aria-selected="String(state.activeTab === 'entradas')"
           @click="store.setActiveTab('entradas')"
         >
-          Entradas
+          {{ t('tabEntradas') }}
         </button>
         <button
           class="tabBtn"
@@ -18,7 +18,7 @@
           :aria-selected="String(state.activeTab === 'perfiles')"
           @click="store.setActiveTab('perfiles')"
         >
-          Perfiles de impresora
+          {{ t('tabPerfiles') }}
         </button>
         <button
           class="tabBtn"
@@ -27,11 +27,11 @@
           :aria-selected="String(state.activeTab === 'historial')"
           @click="store.setActiveTab('historial')"
         >
-          Historial
+          {{ t('tabHistorial') }}
         </button>
       </div>
       <div class="rowActions">
-        <button class="tabBtn" type="button" @click="store.resetValues()">Resetear valores</button>
+        <button class="tabBtn" type="button" @click="store.resetValues()">{{ t('resetValues') }}</button>
       </div>
     </div>
 
@@ -47,10 +47,12 @@
 
 <script setup>
 import { useAppStore } from '../stores/useAppStore.js'
+import { useLocaleStore } from '../stores/useLocaleStore.js'
 import InputsTab from './InputsTab.vue'
 import ModelsTab from './ModelsTab.vue'
 import HistoryTab from './HistoryTab.vue'
 
 const store = useAppStore()
 const { state } = store
+const { t } = useLocaleStore()
 </script>

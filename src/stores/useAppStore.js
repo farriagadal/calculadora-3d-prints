@@ -1,4 +1,5 @@
 import { reactive } from 'vue'
+import { t, tc, formatAmount, localeState } from './useLocaleStore.js'
 
 const STORAGE_KEY = 'calc3dprints:printerModels:v1'
 const STORAGE_TAB_KEY = 'calc3dprints:activeTab:v1'
@@ -97,19 +98,12 @@ function parseTimeHHMM(value) {
 }
 
 export function formatCLP(value, decimals) {
-  const d = Number(decimals)
-  const fmt = new Intl.NumberFormat('es-CL', {
-    style: 'currency',
-    currency: 'CLP',
-    maximumFractionDigits: d,
-    minimumFractionDigits: d,
-  })
-  return fmt.format(Number.isFinite(value) ? value : 0)
+  return formatAmount(value, decimals)
 }
 
 export function formatDateTime(ts) {
   try {
-    return new Intl.DateTimeFormat('es-CL', {
+    return new Intl.DateTimeFormat(localeState.lang === 'en' ? 'en-US' : 'es-CL', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -295,13 +289,13 @@ export function useAppStore() {
     const nombre = String(state.modeloNombre || '').trim()
     const potenciaW = parseNumber(state.modeloPotenciaW)
     let ok = true
-    if (!nombre) { setError('modeloNombre', 'Ingresa un nombre.'); ok = false }
-    if (!Number.isFinite(potenciaW)) { setError('modeloPotenciaW', 'Ingresa potencia (W) (≥ 0).'); ok = false }
+    if (!nombre) { setError('modeloNombre', t('errModeloNombre')); ok = false }
+    if (!Number.isFinite(potenciaW)) { setError('modeloPotenciaW', t('errModeloPotencia')); ok = false }
     if (!ok) return
 
     if (state.editingModelId) {
       const prev = state.models.find((m) => m.id === state.editingModelId)
-      if (!prev) { setError('modeloNombre', 'Modelo no encontrado.'); return }
+      if (!prev) { setError('modeloNombre', t('errModeloNoEncontrado')); return }
       if (prev.builtin) {
         const newId = `user-${Date.now()}-${Math.random().toString(16).slice(2)}`
         upsertModel({ id: newId, nombre, potenciaW, builtin: false })
@@ -323,7 +317,7 @@ export function useAppStore() {
   function deleteModelWithConfirm(id) {
     const m = state.models.find((x) => x.id === id)
     if (!m || m.builtin) return
-    if (!confirm(`¿Borrar modelo "${m.nombre}"?`)) return
+    if (!confirm(tc('confirmBorrarModelo', m.nombre))) return
     persistModels(state.models.filter((x) => x.id !== id))
     setModelFormMode('create')
     // Resetea impresoraId si se borró el seleccionado
@@ -336,7 +330,7 @@ export function useAppStore() {
   }
 
   function restoreModelsWithConfirm() {
-    if (!confirm('¿Restaurar modelos? Se borrarán los modelos personalizados guardados.')) return
+    if (!confirm(t('confirmRestaurarModelos'))) return
     persistModels([...DEFAULT_MODELS])
     setModelFormMode('create')
     state.impresoraId = state.models[0]?.id || ''
@@ -374,16 +368,16 @@ export function useAppStore() {
     const tiempo = parseTimeHHMM(getCurrentTimeString())
 
     let ok = true
-    if (!Number.isFinite(precioMaterial)) { setError('precioMaterial', 'Ingresa CLP/kg (≥ 0).'); ok = false }
-    if (!Number.isFinite(materialGramos)) { setError('materialGramos', 'Ingresa gramos (≥ 0).'); ok = false }
-    if (!Number.isFinite(mermaPct)) { setError('mermaPct', 'Ingresa % merma (≥ 0).'); ok = false }
-    if (!Number.isFinite(costoFijo)) { setError('costoFijo', 'Costo fijo inválido (≥ 0).'); ok = false }
-    if (!Number.isFinite(precioLuz)) { setError('precioLuz', 'Ingresa CLP/kWh (≥ 0).'); ok = false }
-    if (!tiempo) { setError('tiempo', 'Formato inválido. Usa hh:mm (ej: 05:30).'); ok = false }
-    if (!state.impresoraId) { setError('impresora', 'Selecciona un modelo.'); ok = false }
-    if (!Number.isFinite(potenciaW)) { setError('potenciaW', 'Ingresa potencia (W) (≥ 0).'); ok = false }
-    if (!Number.isFinite(consumoExtraW)) { setError('consumoExtraW', 'Consumo extra inválido (≥ 0).'); ok = false }
-    if (![0, 1, 2].includes(decimales)) { setError('decimales', 'Decimales inválidos.'); ok = false }
+    if (!Number.isFinite(precioMaterial)) { setError('precioMaterial', tc('errPrecioMaterial', localeState.currency)); ok = false }
+    if (!Number.isFinite(materialGramos)) { setError('materialGramos', t('errMaterialGramos')); ok = false }
+    if (!Number.isFinite(mermaPct)) { setError('mermaPct', t('errMermaPct')); ok = false }
+    if (!Number.isFinite(costoFijo)) { setError('costoFijo', t('errCostoFijo')); ok = false }
+    if (!Number.isFinite(precioLuz)) { setError('precioLuz', tc('errPrecioLuz', localeState.currency)); ok = false }
+    if (!tiempo) { setError('tiempo', t('errTiempo')); ok = false }
+    if (!state.impresoraId) { setError('impresora', t('errImpresora')); ok = false }
+    if (!Number.isFinite(potenciaW)) { setError('potenciaW', t('errPotenciaW')); ok = false }
+    if (!Number.isFinite(consumoExtraW)) { setError('consumoExtraW', t('errConsumoExtra')); ok = false }
+    if (![0, 1, 2].includes(decimales)) { setError('decimales', t('errDecimales')); ok = false }
     if (!ok) return { ok: false }
 
     const mermaFactor = 1 + mermaPct / 100
@@ -422,11 +416,11 @@ export function useAppStore() {
   async function copyBreakdown() {
     setError('copiar', '')
     if (!state.lastCalc) {
-      showToast('Primero calcula para copiar el desglose', 'bad')
+      showToast(t('toastCopiarPrimero'), 'bad')
       return
     }
     if (state.dirty) {
-      showToast('Los datos cambiaron. Recalcula antes de copiar', 'bad')
+      showToast(t('toastCopiarDirty'), 'bad')
       return
     }
     const calc = state.lastCalc
@@ -435,22 +429,22 @@ export function useAppStore() {
     let margenLine = ''
     if (Number.isFinite(margen) && margen > 0) {
       const precioVenta = calc.outputs.total * (1 + margen / 100)
-      margenLine = `\n- Margen (${margen.toFixed(0)}%): → Precio venta: ${formatCLP(precioVenta, d)}`
+      margenLine = `\n${tc('copyMargen', margen.toFixed(0))} ${formatAmount(precioVenta, d)}`
     }
     const text =
-      `Cotización impresión 3D\n` +
-      `- Modelo: ${selectedModelName()}\n` +
-      `- Tiempo: ${calc.inputs.tiempo.raw}\n` +
-      `- Material: ${calc.inputs.materialGramos.toFixed(1)} g (+${calc.inputs.mermaPct.toFixed(1)}% merma = ${calc.outputs.gramosConMerma.toFixed(1)} g)\n` +
-      `- Material: ${formatCLP(calc.outputs.costoMaterial, d)}\n` +
-      `- Electricidad: ${formatCLP(calc.outputs.costoLuz, d)} (kWh: ${calc.outputs.kWh.toFixed(3)})\n` +
-      `- Costo fijo: ${formatCLP(calc.inputs.costoFijo, d)}\n` +
-      `= Total: ${formatCLP(calc.outputs.total, d)}` +
+      `${t('copyHeader')}\n` +
+      `${t('copyModelo')} ${selectedModelName()}\n` +
+      `${t('copyTiempo')} ${calc.inputs.tiempo.raw}\n` +
+      `${t('copyMaterial')} ${calc.inputs.materialGramos.toFixed(1)} g (+${calc.inputs.mermaPct.toFixed(1)}% = ${calc.outputs.gramosConMerma.toFixed(1)} g)\n` +
+      `${t('copyMaterial')} ${formatAmount(calc.outputs.costoMaterial, d)}\n` +
+      `${t('copyElectricidad')} ${formatAmount(calc.outputs.costoLuz, d)} (kWh: ${calc.outputs.kWh.toFixed(3)})\n` +
+      `${t('copyCostoFijo')} ${formatAmount(calc.inputs.costoFijo, d)}\n` +
+      `${t('copyTotal')} ${formatAmount(calc.outputs.total, d)}` +
       margenLine
 
     try {
       await navigator.clipboard.writeText(text)
-      showToast('Desglose copiado', 'ok')
+      showToast(t('toastCopiado'), 'ok')
     } catch {
       const ta = document.createElement('textarea')
       ta.value = text
@@ -461,9 +455,9 @@ export function useAppStore() {
       ta.select()
       try {
         document.execCommand('copy')
-        showToast('Desglose copiado', 'ok')
+        showToast(t('toastCopiado'), 'ok')
       } catch {
-        setError('copiar', 'No se pudo copiar automáticamente. Selecciona y copia desde el panel.')
+        setError('copiar', t('errNoCopy'))
       } finally {
         document.body.removeChild(ta)
       }
@@ -472,8 +466,8 @@ export function useAppStore() {
 
   // Historial
   function saveCurrentCalcToHistory() {
-    if (!state.lastCalc) { showToast('Calcula primero para guardar', 'warn'); return }
-    if (state.dirty) { showToast('Los datos cambiaron, recalcula primero', 'warn'); return }
+    if (!state.lastCalc) { showToast(t('toastGuardarPrimero'), 'warn'); return }
+    if (state.dirty) { showToast(t('toastGuardarDirty'), 'warn'); return }
 
     const id = `h-${Date.now()}-${Math.random().toString(16).slice(2)}`
     const modelId = state.impresoraId || ''
@@ -493,7 +487,7 @@ export function useAppStore() {
       margenPct: state.margenPct,
     }
     persistHistory([{ id, ts: Date.now(), modelId, modelName, inputs: inputsSnapshot, outputs: state.lastCalc.outputs }, ...state.history].slice(0, 200))
-    showToast('Guardado en historial', 'ok')
+    showToast(t('toastGuardado'), 'ok')
   }
 
   function loadHistoryItem(id) {
@@ -542,18 +536,18 @@ export function useAppStore() {
       outputs: item.outputs,
     }
     state.dirty = false
-    showToast('Cálculo cargado', 'ok')
+    showToast(t('toastCargado'), 'ok')
     setActiveTab('entradas')
   }
 
   function deleteHistoryItem(id) {
-    if (!confirm('¿Borrar este registro del historial?')) return
+    if (!confirm(t('confirmBorrarHistorial'))) return
     persistHistory(state.history.filter((h) => h.id !== id))
   }
 
   function clearHistory() {
     if (!state.history.length) return
-    if (!confirm('¿Limpiar todo el historial?')) return
+    if (!confirm(t('confirmLimpiarHistorial'))) return
     persistHistory([])
   }
 
