@@ -6,14 +6,14 @@
     </div>
 
     <div class="formGrid">
-      <div class="field" style="grid-column: span 12">
+      <div style="grid-column: span 12">
         <div class="rowActions" style="justify-content: flex-start">
           <button class="btn btnSmall btnGhost" type="button" @click="store.clearHistory()">Limpiar historial</button>
         </div>
         <div class="note">Aquí se guardan los cálculos que presiones en "Guardar" (no se sube nada a internet).</div>
       </div>
 
-      <div class="field" style="grid-column: span 12">
+      <div style="grid-column: span 12">
         <div v-if="!sortedHistory.length" class="emptyHistory">
           Sin historial todavía. Calcula y presiona "Guardar".
         </div>

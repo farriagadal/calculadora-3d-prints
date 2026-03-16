@@ -55,7 +55,7 @@
         </div>
       </div>
 
-      <div class="field" style="grid-column: span 12">
+      <div style="grid-column: span 12">
         <table class="modelsTable" aria-label="Modelos guardados">
           <thead>
             <tr>
@@ -71,7 +71,7 @@
                 <span v-if="m.builtin" class="tagDefault" style="margin-left: 8px">por defecto</span>
               </td>
               <td>{{ Math.round(m.potenciaW) }}</td>
-              <td style="display: flex; gap: 8px; flex-wrap: wrap">
+              <td>
                 <button class="btn btnSmall" type="button" @click="store.startEditModel(m.id)">Editar</button>
                 <button
                   v-if="!m.builtin"
